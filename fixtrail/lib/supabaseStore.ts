@@ -117,7 +117,7 @@ export function createSupabaseStore(url: string, serviceKey: string): Store {
     },
 
     async createBuilding(input: NewBuilding) {
-      const row = must(
+      const row = must<BuildingRow>(
         await db
           .from("buildings")
           .insert({
@@ -131,7 +131,7 @@ export function createSupabaseStore(url: string, serviceKey: string): Store {
           .select("*")
           .single(),
       );
-      return rowToBuilding(row as BuildingRow);
+      return rowToBuilding(row);
     },
 
     async getBuilding(id) {
