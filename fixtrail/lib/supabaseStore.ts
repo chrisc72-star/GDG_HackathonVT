@@ -11,6 +11,7 @@ interface ReportRow {
   landlord_name: string;
   unit_label: string;
   description: string;
+  is_public: boolean;
   category: string;
   severity: string;
   ai_category: string | null;
@@ -49,6 +50,7 @@ export function rowToReport(r: ReportRow): Report {
     landlordName: r.landlord_name ?? "",
     unitLabel: r.unit_label,
     description: r.description,
+    isPublic: r.is_public,
     category: r.category as Category,
     severity: r.severity as Severity,
     aiCategory: r.ai_category as ClassifierCategory | null,
@@ -77,6 +79,7 @@ export function reportToRow(r: Report): ReportRow {
     landlord_name: r.landlordName,
     unit_label: r.unitLabel,
     description: r.description,
+    is_public: r.isPublic,
     category: r.category,
     severity: r.severity,
     ai_category: r.aiCategory,
@@ -207,7 +210,10 @@ export function createSupabaseStore(url: string, serviceKey: string): Store {
       if (!report.photoPath) return null;
       const res = await db.storage.from(bucket).download(report.photoPath);
       if (res.error || !res.data) return null;
-      return { bytes: new Uint8Array(await res.data.arrayBuffer()), mime: "image/jpeg" };
+      const mime = ["image/jpeg", "image/png", "image/webp"].includes(res.data.type)
+        ? res.data.type
+        : "image/jpeg";
+      return { bytes: new Uint8Array(await res.data.arrayBuffer()), mime };
     },
   };
 }

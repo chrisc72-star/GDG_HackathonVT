@@ -32,6 +32,7 @@ export default function ReportPage() {
   const [landlordName, setLandlordName] = useState("");
   const [unitLabel, setUnitLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [publicConsent, setPublicConsent] = useState(false);
   const [photo, setPhoto] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -128,6 +129,7 @@ export default function ReportPage() {
       form.set("landlordName", landlordName.trim());
       form.set("unitLabel", unitLabel);
       form.set("description", description);
+      form.set("publicConsent", String(publicConsent));
       form.set("category", category);
       form.set("severity", severity);
       form.set("aiCategory", analysis.classification.category);
@@ -170,7 +172,10 @@ export default function ReportPage() {
   return (
     <>
       <h1>Report a problem</h1>
-      <p className="lead">Take a clear, close-up photo of the problem. You review everything before it is saved.</p>
+      <p className="lead">
+        Take a clear, close-up photo of the problem. After you save, the photo and description will be public on this building’s dashboard.
+        Unit labels and your identity will not be displayed.
+      </p>
 
       <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>
         {message}
@@ -311,8 +316,25 @@ export default function ReportPage() {
             </span>
           </div>
 
+          <div className="notice warn" role="note">
+            Anyone can view reports you submit here, including the photo and description. Avoid including faces,
+            names, mail, or other personal details in the photo or description. Your optional unit label stays private.
+          </div>
+
+          <div className="field">
+            <label>
+              <input
+                type="checkbox"
+                required
+                checked={publicConsent}
+                onChange={(e) => setPublicConsent(e.target.checked)}
+              />{" "}
+              I understand the submitted photo and description will be publicly visible on the building dashboard.
+            </label>
+          </div>
+
           <div className="actions">
-            <button className="btn" onClick={save} disabled={busy !== "idle"}>
+            <button className="btn" onClick={save} disabled={busy !== "idle" || !publicConsent}>
               {busy === "saving" ? "Saving…" : "Confirm and save report"}
             </button>
           </div>

@@ -1,6 +1,6 @@
 import { classifyReport } from "@/lib/classify";
-import { clientIp, json, validatePhoto } from "@/lib/http";
-import { rateLimit } from "@/lib/rateLimit";
+import { clientIp, hashToken, json, reporterHashFrom, validatePhoto } from "@/lib/http";
+import { consumeRateLimit } from "@/lib/rateLimit";
 import { applySafetyRules, sanitizeText } from "@/lib/safety";
 
 export const runtime = "nodejs";
@@ -11,10 +11,6 @@ export const dynamic = "force-dynamic";
  * result is returned, and the tenant decides whether to submit a report.
  */
 export async function POST(req: Request) {
-  if (!rateLimit(`classify:${clientIp(req)}`, 12, 60_000)) {
-    return json({ error: "Too many requests. Please wait a minute and try again." }, 429);
-  }
-
   let form: FormData;
   try {
     form = await req.formData();
@@ -24,6 +20,17 @@ export async function POST(req: Request) {
 
   const photo = validatePhoto(form.get("photo"));
   if (!photo.ok) return json({ error: photo.error }, 400);
+
+  const deviceHash = reporterHashFrom(req) ?? hashToken(`ip:${clientIp(req)}`);
+  let allowed: boolean;
+  try {
+    allowed = await consumeRateLimit(`analyze:${deviceHash}`, 2, 5 * 60_000);
+  } catch {
+    return json({ error: "Photo analysis is temporarily unavailable. Please try again shortly." }, 503);
+  }
+  if (!allowed) {
+    return json({ error: "Analysis limit reached. This device can analyze 2 photos every 5 minutes." }, 429);
+  }
 
   const description = sanitizeText(String(form.get("description") ?? ""), 500);
   const bytes = Buffer.from(await photo.file.arrayBuffer());

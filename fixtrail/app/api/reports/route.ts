@@ -38,6 +38,10 @@ export async function POST(req: Request) {
     return json({ error: "Expected a form upload." }, 400);
   }
 
+  if (form.get("publicConsent") !== "true") {
+    return json({ error: "Please confirm that the photo and description will be public." }, 400);
+  }
+
   const photo = validatePhoto(form.get("photo"));
   if (!photo.ok) return json({ error: photo.error }, 400);
 
@@ -86,6 +90,7 @@ export async function POST(req: Request) {
     landlordName,
     unitLabel,
     description: sanitizeText(String(form.get("description") ?? ""), 500),
+    isPublic: true,
     category,
     severity,
     aiCategory,

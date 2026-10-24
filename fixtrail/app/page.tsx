@@ -37,18 +37,18 @@ export default function HomePage() {
             timeline.
           </li>
           <li>
-            <strong>See the pattern.</strong> Each building&rsquo;s dashboard shows combined counts, like
-            several households reporting mold, without exposing any individual report.
+            <strong>See community reports.</strong> Each building&rsquo;s dashboard shows submitted photos and
+            descriptions alongside building-wide counts.
           </li>
         </ol>
       </section>
 
       <section className="grid cols-3" aria-label="Design principles">
         <div className="card">
-          <h3>Private by default</h3>
+          <h3>Public reports, private unit labels</h3>
           <p>
-            Photos and descriptions are visible only to the device that submitted them. Building pages show
-            counts only, and only once enough households have reported.
+            Submitted report photos and descriptions appear on the building dashboard for anyone to view.
+            Unit labels and device identities are not displayed.
           </p>
         </div>
         <div className="card">

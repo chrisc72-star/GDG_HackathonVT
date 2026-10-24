@@ -17,6 +17,7 @@ function newReport(id: string, hash: string): NewReport {
     landlordName: "Example Property Mgmt",
     unitLabel: "4B",
     description: "Leak under sink",
+    isPublic: true,
     category: "water_leak",
     severity: "standard",
     aiCategory: "water_leak",

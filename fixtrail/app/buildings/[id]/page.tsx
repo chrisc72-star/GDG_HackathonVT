@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 import { BuildingMyReports } from "@/components/BuildingMyReports";
 import { K_THRESHOLD, summarizeBuilding } from "@/lib/aggregate";
+import { toPublicReportView } from "@/lib/serialize";
 import { getStore, removeDemoSeedReports } from "@/lib/store";
 import { CATEGORY_LABELS } from "@/lib/types";
+import { SeverityBadge, StatusBadge } from "@/components/Badges";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,13 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
   const building = await store.getBuilding(id);
   if (!building) notFound();
 
-  const summary = summarizeBuilding(await store.listReportsForBuilding(id), new Date());
+  const reports = await store.listReportsForBuilding(id);
+  const summary = summarizeBuilding(reports, new Date());
+  const publicReports = reports
+    .filter((report) => report.isPublic)
+    .sort((a, b) => b.reportedAt.getTime() - a.reportedAt.getTime())
+    .slice(0, 50)
+    .map(toPublicReportView);
 
   return (
     <>
@@ -31,8 +39,8 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
 
       {summary.insufficientData ? (
         <div className="notice" role="status">
-          <strong>Not enough reports to show details.</strong> To protect privacy, this page shows nothing
-          until at least {K_THRESHOLD} different households have reported. Be one of them.
+          <strong>Not enough reports to show building statistics.</strong> Aggregate trends appear after at least
+          {" "}{K_THRESHOLD} different households have reported.
           <div className="actions">
             <Link className="btn" href={`/report?building=${building.id}`}>Report a problem here</Link>
           </div>
@@ -97,6 +105,38 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
           </div>
         </>
       )}
+
+      <section aria-labelledby="community-reports-title">
+        <h2 id="community-reports-title">Community reports</h2>
+        <p className="meta">
+          These reports, including their photos and descriptions, are visible to anyone. Unit labels and reporter identities are not shown.
+          Showing at most the 50 most recent reports.
+        </p>
+        {publicReports.length === 0 ? (
+          <div className="card"><p>No reports have been filed for this building yet.</p></div>
+        ) : (
+          publicReports.map((report) => (
+            <article key={report.id} className="card report" aria-labelledby={`community-${report.id}`}>
+              <h3 id={`community-${report.id}`}>{CATEGORY_LABELS[report.category]}</h3>
+              <p className="meta">Reported {new Date(report.reportedAt).toLocaleDateString()}</p>
+              <div className="badges">
+                <SeverityBadge severity={report.severity} />
+                <StatusBadge status={report.status} />
+              </div>
+              {report.description ? <p>{report.description}</p> : <p className="meta">No description provided.</p>}
+              {report.hasPhoto && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className="preview"
+                  src={`/api/reports/${report.id}/photo`}
+                  alt={`Photo submitted with ${CATEGORY_LABELS[report.category].toLowerCase()} report`}
+                  loading="lazy"
+                />
+              )}
+            </article>
+          ))
+        )}
+      </section>
 
       <BuildingMyReports buildingId={building.id} />
 

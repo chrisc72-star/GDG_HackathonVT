@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 /** Generate a repair-notice PDF for one of the caller's own reports. */
-export async function POST(_req: Request, ctx: Ctx) {
+export async function POST(req: Request, ctx: Ctx) {
   const hash = reporterHashFrom(req);
   if (!hash) return json({ error: "Missing reporter token." }, 401);
 

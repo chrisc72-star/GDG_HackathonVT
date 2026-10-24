@@ -83,6 +83,8 @@ export interface Report {
   landlordName: string;
   unitLabel: string;
   description: string;
+  /** True only after the reporter explicitly agrees to public display. */
+  isPublic: boolean;
   category: Category;
   severity: Severity;
   aiCategory: ClassifierCategory | null;
