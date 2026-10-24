@@ -66,7 +66,7 @@ The app requires a Supabase project for authentication and resident profiles. Co
 ### Turn on persistence (Supabase, free tier)
 
 1. Create a project at https://supabase.com.
-2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`, then `supabase/migrations/20261024000200_resident_multiple_buildings.sql`.
+2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`, `supabase/migrations/20261024000200_resident_multiple_buildings.sql`, and `supabase/migrations/20261024000300_report_identity_columns.sql`.
 3. Set `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (same project URL), `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key must stay server-side.
 4. Configure Google OAuth: create a Web OAuth client in Google Cloud, add the callback URI shown in **Supabase → Authentication → Providers → Google** as an authorized redirect URI in Google Cloud, then paste the Google Client ID and Client Secret into Supabase's Google provider settings and enable the provider.
 5. In Google Auth Platform, configure the consent screen for the intended audience. Publish the app or add testers as appropriate for your Google Workspace setup.
