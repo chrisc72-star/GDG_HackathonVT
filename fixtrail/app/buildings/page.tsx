@@ -12,13 +12,11 @@ export default async function BuildingsPage() {
   const campusBuildings = (await getStore().listBuildings())
     .filter((building) => building.isVtCampus)
     .sort((a, b) => a.name.localeCompare(b.name));
-  const accessibleIds = new Set(resident.profile.buildingIds);
-  const buildings = campusBuildings.filter((building) => accessibleIds.has(building.id));
-  const availableBuildings = campusBuildings.filter((building) => !accessibleIds.has(building.id));
+  const building = campusBuildings.find((item) => item.id === resident.profile.buildingId) ?? null;
   return (
     <>
       <RuntimeBanner />
-      <ResidentBuildings buildings={buildings} availableBuildings={availableBuildings} primaryBuildingId={resident.profile.buildingId} />
+      <ResidentBuildings building={building} />
     </>
   );
 }

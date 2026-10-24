@@ -170,7 +170,7 @@ export default function ReportPage() {
     <>
       <h1>Report a problem</h1>
       <p className="lead">
-        Take a clear, close-up photo of the problem. After you save, residents who have added this building can see the photo and description on its dashboard.
+        Take a clear, close-up photo of the problem. After you save, residents assigned to this building can see the photo and description on its dashboard.
         Unit labels and your identity will not be displayed.
       </p>
 
@@ -195,7 +195,7 @@ export default function ReportPage() {
           <div className="field">
             <label htmlFor="building">Building</label>
             <p className="hint">
-              Choose a hall in My Buildings. Add another hall there first if it is not listed.
+              Reports can be filed only for the residence hall selected in your resident profile.
             </p>
             <select id="building" required value={buildingId} disabled={buildings.length === 1} onChange={(e) => setBuildingId(e.target.value)}>
               <option value="">Choose a building…</option>
@@ -315,7 +315,7 @@ export default function ReportPage() {
                 checked={publicConsent}
                 onChange={(e) => setPublicConsent(e.target.checked)}
               />{" "}
-              I understand other signed-in residents who have added this building can view the submitted photo and description.
+              I understand other signed-in residents assigned to this building can view the submitted photo and description.
             </label>
           </div>
 

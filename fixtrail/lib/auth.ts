@@ -9,8 +9,18 @@ export interface ResidentProfile {
   roomNumber: string;
   /** Primary hall selected during onboarding. */
   buildingId: string;
-  /** Primary hall plus any additional halls the resident has added. */
+  /** Only the primary hall selected during onboarding. */
   buildingIds: string[];
+}
+
+/** Configure a comma-separated list of verified VT administrator email addresses. */
+export function isAdminEmail(email: string | undefined | null): boolean {
+  if (!email) return false;
+  const admins = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  return admins.includes(email.trim().toLowerCase());
 }
 
 export function isVtEmail(email: string | undefined | null): email is string {
@@ -37,19 +47,13 @@ export async function getResidentProfile(userId: string): Promise<ResidentProfil
     .maybeSingle();
   if (error) throw new Error("Could not load resident profile.");
   if (!data) return null;
-  const { data: memberships, error: membershipsError } = await admin
-    .from("resident_buildings")
-    .select("building_id")
-    .eq("user_id", userId);
-  if (membershipsError) throw new Error("Could not load resident building access.");
-  const buildingIds = [...new Set([data.building_id, ...(memberships ?? []).map((row) => row.building_id)])];
   return {
     userId: data.user_id,
     email: data.email,
     fullName: data.full_name,
     roomNumber: data.room_number,
     buildingId: data.building_id,
-    buildingIds,
+    buildingIds: [data.building_id],
   };
 }
 

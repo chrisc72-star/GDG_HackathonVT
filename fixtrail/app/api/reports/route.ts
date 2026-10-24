@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   const store = getStore();
   const buildingId = String(form.get("buildingId") ?? "");
   if (!resident.profile.buildingIds.includes(buildingId)) {
-    return json({ error: "Add this residence hall to My Buildings before submitting a report there." }, 403);
+    return json({ error: "Reports can be filed only for your selected residence hall." }, 403);
   }
   const building = await store.getBuilding(buildingId);
   if (!building) return json({ error: "Please choose a building." }, 400);
