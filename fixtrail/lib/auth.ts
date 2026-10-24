@@ -7,7 +7,10 @@ export interface ResidentProfile {
   email: string;
   fullName: string;
   roomNumber: string;
+  /** Primary hall selected during onboarding. */
   buildingId: string;
+  /** Primary hall plus any additional halls the resident has added. */
+  buildingIds: string[];
 }
 
 export function isVtEmail(email: string | undefined | null): email is string {
@@ -26,19 +29,27 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function getResidentProfile(userId: string): Promise<ResidentProfile | null> {
-  const { data, error } = await createSupabaseAdminClient()
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin
     .from("profiles")
     .select("user_id,email,full_name,room_number,building_id")
     .eq("user_id", userId)
     .maybeSingle();
   if (error) throw new Error("Could not load resident profile.");
   if (!data) return null;
+  const { data: memberships, error: membershipsError } = await admin
+    .from("resident_buildings")
+    .select("building_id")
+    .eq("user_id", userId);
+  if (membershipsError) throw new Error("Could not load resident building access.");
+  const buildingIds = [...new Set([data.building_id, ...(memberships ?? []).map((row) => row.building_id)])];
   return {
     userId: data.user_id,
     email: data.email,
     fullName: data.full_name,
     roomNumber: data.room_number,
     buildingId: data.building_id,
+    buildingIds,
   };
 }
 

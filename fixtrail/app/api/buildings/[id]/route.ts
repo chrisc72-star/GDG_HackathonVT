@@ -13,7 +13,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   const resident = await getCurrentResident();
   if (!resident) return json({ error: "Please sign in first." }, 401);
   const { id } = await ctx.params;
-  if (id !== resident.profile.buildingId) return json({ error: "Building not found." }, 404);
+  if (!resident.profile.buildingIds.includes(id)) return json({ error: "Building not found." }, 404);
   const store = getStore();
   const building = await store.getBuilding(id);
   if (!building) return json({ error: "Building not found." }, 404);

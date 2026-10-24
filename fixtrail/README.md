@@ -4,7 +4,7 @@
 
 FixTrail helps renters build a dated, photo-backed record of housing problems. A tenant snaps a photo, the app suggests a category and priority (and shows what it saw), a response clock starts, and one tap produces a PDF repair notice. Each building gets an anonymous dashboard that surfaces patterns, like several households reporting mold, without exposing any individual report.
 
-For Virginia Tech students living in on-campus residence halls. Residents verify with a `@vt.edu` email, choose one hall, and can access reports only for that hall. MIT licensed.
+For Virginia Tech students living in on-campus residence halls. Residents verify with a `@vt.edu` email, choose a primary hall, and can add other halls to access reports there. MIT licensed.
 
 ## Why this isn't "just ask a chatbot"
 
@@ -33,7 +33,7 @@ Browser (Next.js, mobile-first, keyboard accessible)
   │  photo compressed + EXIF/GPS stripped client-side (canvas re-encode)
   ▼
 Next.js route handlers (server)
-  ├─ Supabase Auth ──► verified @vt.edu resident profile ──► one assigned residence hall
+  ├─ Supabase Auth ──► verified @vt.edu resident profile ──► primary hall + added halls
   ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Claude ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
@@ -42,9 +42,9 @@ Next.js route handlers (server)
   └─ GET /api/buildings/[id] ──► aggregate.ts (k-anonymity) ──► counts only
 ```
 
-Building pages show up to 50 recent reports to authenticated residents assigned to that same hall. Submitters confirm that their photos and descriptions will be visible to those residents. Room numbers, names, and email addresses stay private. The Supabase photo bucket stays private; the app streams consented photos only to signed-in residents of the report's building.
+Building pages show up to 50 recent reports to authenticated residents who have added that hall to their account. Submitters confirm that their photos and descriptions will be visible to those residents. Room numbers, names, and email addresses stay private. The Supabase photo bucket stays private; the app streams consented photos only to residents with access to the report's building.
 
-- **Identity and access:** Residents use Google OAuth with a verified `@vt.edu` account. Onboarding records their name, email, room, and one residence hall. Server routes check that hall assignment on every report request.
+- **Identity and access:** Residents use Google OAuth with a verified `@vt.edu` account. Onboarding records their name, email, room, and primary residence hall. They can add other halls from the VT catalog; server routes check each hall membership on every report request.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
 - **Classifier:** `lib/classify.ts` calls Anthropic's Messages API with the Claude model id in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
 
@@ -66,7 +66,7 @@ The app requires a Supabase project for authentication and resident profiles. Co
 ### Turn on persistence (Supabase, free tier)
 
 1. Create a project at https://supabase.com.
-2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`.
+2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`, then `supabase/migrations/20261024000200_resident_multiple_buildings.sql`.
 3. Set `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (same project URL), `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key must stay server-side.
 4. Configure Google OAuth: create a Web OAuth client in Google Cloud, add the callback URI shown in **Supabase → Authentication → Providers → Google** as an authorized redirect URI in Google Cloud, then paste the Google Client ID and Client Secret into Supabase's Google provider settings and enable the provider.
 5. In Google Auth Platform, configure the consent screen for the intended audience. Publish the app or add testers as appropriate for your Google Workspace setup.

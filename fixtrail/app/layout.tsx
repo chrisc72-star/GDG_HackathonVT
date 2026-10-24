@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ul>
               <li><Link href="/report">Report a problem</Link></li>
               <li><Link href="/reports">My reports</Link></li>
-              <li><Link href="/buildings">My building</Link></li>
+              <li><Link href="/buildings">My buildings</Link></li>
               <li><AuthControls /></li>
             </ul>
           </nav>

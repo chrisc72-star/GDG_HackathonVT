@@ -114,7 +114,7 @@ export default function MyReportsPage() {
       <p className="lead">
         These are the reports filed by your Virginia Tech account. Sign in again from another device to manage
         them; only your own account can update or delete them. Community-visible photos and descriptions are
-        limited to your assigned residence hall.
+        limited to residence halls you have added to My Buildings.
       </p>
 
       <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>{message}</div>

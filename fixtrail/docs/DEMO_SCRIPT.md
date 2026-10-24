@@ -22,7 +22,7 @@ Open Pine Court: "Aggregate statistics stay hidden until enough households have 
 ## 1:40 to 2:00 — Responsible AI and close
 
 - "Low confidence asks the tenant to confirm. A gas smell can never be rated below emergency. Non-housing photos are rejected."
-- "Photos lose GPS data in the browser before upload. Only signed-in residents assigned to the hall can view its reports, and each tenant can delete their own report and photo."
+- "Photos lose GPS data in the browser before upload. Only signed-in residents who have added a hall can view its reports, and each tenant can delete their own report and photo."
 - Tracks to name: say only the ones you actually fit. Do not claim the Gemma track when Claude is the classifier; Open-Source (public repo, MIT, README); Best UI/UX if you polished the flow.
 
 ## If something breaks live

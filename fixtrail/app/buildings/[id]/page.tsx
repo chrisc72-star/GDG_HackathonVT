@@ -16,7 +16,7 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
   await removeDemoSeedReports();
   const resident = await getCurrentResident();
   if (!resident) notFound();
-  if (resident.profile.buildingId !== id) notFound();
+  if (!resident.profile.buildingIds.includes(id)) notFound();
   const store = getStore();
   const building = await store.getBuilding(id);
   if (!building) notFound();
@@ -113,7 +113,7 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
       <section aria-labelledby="community-reports-title">
         <h2 id="community-reports-title">Community reports</h2>
         <p className="meta">
-          These reports, including their photos and descriptions, are visible to signed-in residents assigned to this hall. Unit labels and reporter identities are not shown.
+          These reports, including their photos and descriptions, are visible to signed-in residents who have added this hall. Unit labels and reporter identities are not shown.
           Showing at most the 50 most recent reports.
         </p>
         {publicReports.length === 0 ? (

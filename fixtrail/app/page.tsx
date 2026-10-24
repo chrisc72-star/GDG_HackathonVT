@@ -16,8 +16,8 @@ export default function HomePage() {
           tenant&rsquo;s complaint.
         </p>
         <div className="actions">
-          <Link href="/login" className="btn">Sign in with VT email</Link>
-          <Link href="/buildings" className="btn secondary">My building</Link>
+          <Link href="/login" className="btn">Continue with Google</Link>
+          <Link href="/buildings" className="btn secondary">My buildings</Link>
         </div>
       </section>
 

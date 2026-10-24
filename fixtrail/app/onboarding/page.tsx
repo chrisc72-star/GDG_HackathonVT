@@ -52,7 +52,7 @@ export default function OnboardingPage() {
   return (
     <>
       <h1>Set up your resident profile</h1>
-      <p className="lead">Your account is limited to one Virginia Tech residence hall. You can view and report issues for that building only.</p>
+      <p className="lead">Choose your primary Virginia Tech residence hall. After setup, you can add other halls from My Buildings to view and report issues there too.</p>
       {error && <div className="notice bad" role="alert">{error}</div>}
       {loading ? <p>Loading the residence list…</p> : buildings.length === 0 ? (
         <div className="notice warn" role="alert">

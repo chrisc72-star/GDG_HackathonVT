@@ -1,6 +1,8 @@
 import { json } from "@/lib/http";
 import { getStore } from "@/lib/store";
 import { getCurrentUser, getResidentProfile } from "@/lib/auth";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,14 +11,56 @@ export async function GET() {
   const user = await getCurrentUser();
   if (!user) return json({ error: "Please sign in first." }, 401);
   const profile = await getResidentProfile(user.id);
+  const campusBuildings = (await getStore().listBuildings())
+    .filter((building) => building.isVtCampus)
+    .sort((a, b) => a.name.localeCompare(b.name));
   if (profile) {
-    const building = await getStore().getBuilding(profile.buildingId);
-    return json({ buildings: building ? [building] : [] });
+    const accessibleIds = new Set(profile.buildingIds);
+    return json({
+      buildings: campusBuildings.filter((building) => accessibleIds.has(building.id)),
+      availableBuildings: campusBuildings.filter((building) => !accessibleIds.has(building.id)),
+    });
   }
-  const buildings = (await getStore().listBuildings()).filter((building) => building.isVtCampus);
-  return json({ buildings });
+  return json({ buildings: campusBuildings });
 }
 
-export async function POST() {
-  return json({ error: "The Virginia Tech residence list is maintained by FixTrail admins." }, 403);
+const addBuildingInput = z.object({ buildingId: z.string().uuid() }).strict();
+
+export async function POST(req: Request) {
+  const user = await getCurrentUser();
+  if (!user) return json({ error: "Please sign in first." }, 401);
+  const profile = await getResidentProfile(user.id);
+  if (!profile) return json({ error: "Complete your resident profile first." }, 403);
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "Choose a Virginia Tech residence hall." }, 400);
+  }
+  const parsed = addBuildingInput.safeParse(body);
+  if (!parsed.success) return json({ error: "Choose a Virginia Tech residence hall." }, 400);
+
+  const admin = createSupabaseAdminClient();
+  const building = await admin
+    .from("buildings")
+    .select("id")
+    .eq("id", parsed.data.buildingId)
+    .eq("is_vt_campus", true)
+    .maybeSingle();
+  if (building.error) return json({ error: "Could not verify that residence hall." }, 500);
+  if (!building.data) return json({ error: "Choose a listed Virginia Tech residence hall." }, 400);
+  if (profile.buildingIds.includes(parsed.data.buildingId)) return json({ added: false });
+
+  const inserted = await admin.from("resident_buildings").insert({
+    user_id: user.id,
+    building_id: parsed.data.buildingId,
+  });
+  if (inserted.error) {
+    if (inserted.error.code === "23505") return json({ added: false });
+    console.error("Could not add resident building", inserted.error.message);
+    return json({ error: "Could not add that residence hall. Please try again." }, 500);
+  }
+
+  return json({ added: true }, 201);
 }

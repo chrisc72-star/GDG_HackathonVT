@@ -14,7 +14,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   const store = getStore();
   const report = await store.getReport(id);
-  if (!report?.isPublic || !report.photoPath || report.buildingId !== resident.profile.buildingId) {
+  if (!report?.isPublic || !report.photoPath || !resident.profile.buildingIds.includes(report.buildingId)) {
     return json({ error: "Photo not found." }, 404);
   }
 

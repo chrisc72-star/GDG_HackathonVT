@@ -17,7 +17,7 @@ export async function POST(req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   const store = getStore();
   const report = await store.getReport(id);
-  if (!report || report.reporterHash !== hash || report.buildingId !== resident.profile.buildingId) {
+  if (!report || report.reporterHash !== hash || !resident.profile.buildingIds.includes(report.buildingId)) {
     return json({ error: "Report not found." }, 404);
   }
 
