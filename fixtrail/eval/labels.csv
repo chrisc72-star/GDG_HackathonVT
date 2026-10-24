@@ -1,0 +1,9 @@
+filename,true_category,true_severity,note
+# Put 20-30 labeled photos in eval/images/ and list them here (one row per photo).
+# Categories: mold,water_leak,plumbing,heating_cooling,electrical,pests,structural,appliance,lock_security,fire_safety,gas_odor,sewage,other,not_housing
+# Severities: minor,standard,urgent,emergency
+# Include a few not_housing photos (food, pets, selfies) and a few blurry photos.
+# Example rows (delete these and add your own):
+# bathroom_ceiling_mold.jpg,mold,standard,
+# kitchen_sink_leak.jpg,water_leak,standard,
+# cat_on_couch.jpg,not_housing,minor,
