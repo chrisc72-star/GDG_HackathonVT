@@ -4,7 +4,7 @@
 
 FixTrail helps renters build a dated, photo-backed record of housing problems. A tenant snaps a photo, the app suggests a category and priority (and shows what it saw), a response clock starts, and one tap produces a PDF repair notice. Each building gets an anonymous dashboard that surfaces patterns, like several households reporting mold, without exposing any individual report.
 
-For Virginia Tech students living in on-campus residence halls. Residents verify with a `@vt.edu` email and can view and report issues only for the one hall selected during onboarding. Designated administrators can review reports across campus. MIT licensed.
+For Virginia Tech students living in on-campus residence halls. Residents verify with a `@vt.edu` email and can view and report issues only for the one hall selected during onboarding. Designated administrators can review reports across campus, manage report status, remove reports, and add halls to their own account. MIT licensed.
 
 ## Why this isn't "just ask a chatbot"
 
@@ -66,7 +66,7 @@ The app requires a Supabase project for authentication and resident profiles. Co
 ### Turn on persistence (Supabase, free tier)
 
 1. Create a project at https://supabase.com.
-2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`, `supabase/migrations/20261024000200_resident_multiple_buildings.sql`, `supabase/migrations/20261024000300_report_identity_columns.sql`, and `supabase/migrations/20261024000400_one_residence_hall_and_admin.sql`.
+2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`, `supabase/migrations/20261024000200_resident_multiple_buildings.sql`, `supabase/migrations/20261024000300_report_identity_columns.sql`, `supabase/migrations/20261024000400_one_residence_hall_and_admin.sql`, and `supabase/migrations/20261024000500_admin_multiple_buildings.sql`.
 3. Set `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (same project URL), `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key must stay server-side.
 4. Configure Google OAuth: create a Web OAuth client in Google Cloud, add the callback URI shown in **Supabase → Authentication → Providers → Google** as an authorized redirect URI in Google Cloud, then paste the Google Client ID and Client Secret into Supabase's Google provider settings and enable the provider.
 5. In Google Auth Platform, configure the consent screen for the intended audience. Publish the app or add testers as appropriate for your Google Workspace setup.
@@ -74,7 +74,7 @@ The app requires a Supabase project for authentication and resident profiles. Co
 7. Google sign-in requests `@vt.edu` accounts first, and the app verifies the returned email server-side. The Google account chooser hint is not an access control; the server-side check is.
 8. The onboarding list is seeded from Virginia Tech's [official residence hall directory](https://housing.vt.edu/experience/YourResidenceHall/HallListing.html). Ask the app admin to update the catalog if a hall changes.
 9. Optional: `npm run seed:supabase` adds clearly labeled fictional demo reports; these are not included in the VT building picker.
-10. Set `ADMIN_EMAILS` to a comma-separated list of verified `@vt.edu` addresses in `.env.local` and Vercel. Those accounts see the **Admin** link and can view names, rooms, and reports across VT residence halls. Keep this list limited to trusted administrators.
+10. Set `ADMIN_EMAILS` to a comma-separated list of verified `@vt.edu` addresses in `.env.local` and Vercel. Those accounts see the **Admin** link, can view names, rooms, and reports across VT residence halls, update/delete reports, and add halls to their own account. Other residents stay limited to their selected hall. Keep this list limited to trusted administrators.
 
 ### Deploy (Vercel, free tier)
 

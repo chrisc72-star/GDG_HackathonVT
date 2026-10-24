@@ -80,8 +80,6 @@ create table if not exists public.resident_buildings (
 
 create index if not exists resident_buildings_building_idx
   on public.resident_buildings (building_id);
-create unique index if not exists resident_buildings_one_hall_per_user_idx
-  on public.resident_buildings (user_id);
 
 alter table public.resident_buildings enable row level security;
 grant select on public.resident_buildings to authenticated;
@@ -100,7 +98,7 @@ as $$
 begin
   insert into public.resident_buildings (user_id, building_id)
   values (new.user_id, new.building_id)
-  on conflict (user_id) do update set building_id = excluded.building_id;
+  on conflict (user_id, building_id) do nothing;
   return new;
 end;
 $$;

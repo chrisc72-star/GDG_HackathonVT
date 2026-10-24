@@ -9,7 +9,7 @@ export interface ResidentProfile {
   roomNumber: string;
   /** Primary hall selected during onboarding. */
   buildingId: string;
-  /** Only the primary hall selected during onboarding. */
+  /** The primary hall, plus added halls only for allowlisted administrators. */
   buildingIds: string[];
 }
 
@@ -47,13 +47,22 @@ export async function getResidentProfile(userId: string): Promise<ResidentProfil
     .maybeSingle();
   if (error) throw new Error("Could not load resident profile.");
   if (!data) return null;
+  let buildingIds = [data.building_id];
+  if (isAdminEmail(data.email)) {
+    const { data: memberships, error: membershipsError } = await admin
+      .from("resident_buildings")
+      .select("building_id")
+      .eq("user_id", userId);
+    if (membershipsError) throw new Error("Could not load administrator building access.");
+    buildingIds = [...new Set([...buildingIds, ...(memberships ?? []).map((row) => row.building_id)])];
+  }
   return {
     userId: data.user_id,
     email: data.email,
     fullName: data.full_name,
     roomNumber: data.room_number,
     buildingId: data.building_id,
-    buildingIds: [data.building_id],
+    buildingIds,
   };
 }
 

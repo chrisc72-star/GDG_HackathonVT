@@ -1,6 +1,6 @@
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 import { getStore } from "@/lib/store";
-import { getCurrentResident } from "@/lib/auth";
+import { getCurrentResident, isAdminEmail } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ResidentBuildings } from "@/components/ResidentBuildings";
 
@@ -12,11 +12,19 @@ export default async function BuildingsPage() {
   const campusBuildings = (await getStore().listBuildings())
     .filter((building) => building.isVtCampus)
     .sort((a, b) => a.name.localeCompare(b.name));
-  const building = campusBuildings.find((item) => item.id === resident.profile.buildingId) ?? null;
+  const isAdmin = isAdminEmail(resident.user.email);
+  const accessibleIds = new Set(resident.profile.buildingIds);
+  const buildings = campusBuildings.filter((building) => accessibleIds.has(building.id));
+  const availableBuildings = isAdmin ? campusBuildings.filter((building) => !accessibleIds.has(building.id)) : [];
   return (
     <>
       <RuntimeBanner />
-      <ResidentBuildings building={building} />
+      <ResidentBuildings
+        buildings={buildings}
+        availableBuildings={availableBuildings}
+        primaryBuildingId={resident.profile.buildingId}
+        isAdmin={isAdmin}
+      />
     </>
   );
 }

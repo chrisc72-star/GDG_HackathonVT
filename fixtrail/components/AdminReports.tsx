@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DeadlineBadge, SeverityBadge, StatusBadge } from "@/components/Badges";
 import { api } from "@/lib/client";
 import type { ReportView } from "@/lib/serialize";
@@ -18,12 +18,57 @@ export function AdminReports() {
   const [query, setQuery] = useState("");
   const [buildingId, setBuildingId] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const result = await api<{ reports: AdminReport[] }>("/api/admin/reports");
+      setReports(result.reports);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load reports.");
+    }
+  }, []);
 
   useEffect(() => {
-    api<{ reports: AdminReport[] }>("/api/admin/reports")
-      .then((result) => setReports(result.reports))
-      .catch((err) => setError(err instanceof Error ? err.message : "Could not load reports."));
-  }, []);
+    void load();
+  }, [load]);
+
+  async function act(id: string, action: "acknowledge" | "resolve" | "reopen") {
+    setBusyId(id);
+    setError(null);
+    setMessage(null);
+    try {
+      await api(`/api/admin/reports/${id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      await load();
+      setMessage("Report updated.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update the report.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm("Delete this report and its photo? This cannot be undone.")) return;
+    setBusyId(id);
+    setError(null);
+    setMessage(null);
+    try {
+      await api(`/api/admin/reports/${id}`, { method: "DELETE" });
+      await load();
+      setMessage("Report deleted.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete the report.");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   const buildings = useMemo(() => {
     const unique = new Map<string, string>();
@@ -43,6 +88,7 @@ export function AdminReports() {
     <>
       <h1>All reports</h1>
       <p className="lead">Administrator view of reports across all buildings. Resident names and room details are visible only to administrators.</p>
+      <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>{message}</div>
       {error && <div className="notice bad" role="alert">{error}</div>}
       {reports === null && !error && <p>Loading reports…</p>}
 
@@ -80,6 +126,26 @@ export function AdminReports() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img className="preview" src={`/api/reports/${report.id}/photo`} alt={`Photo for report at ${buildingName}`} loading="lazy" />
               )}
+              <div className="actions">
+                {report.status === "open" && (
+                  <button className="btn small secondary" onClick={() => act(report.id, "acknowledge")} disabled={busyId === report.id}>
+                    Mark acknowledged
+                  </button>
+                )}
+                {report.status !== "resolved" && (
+                  <button className="btn small secondary" onClick={() => act(report.id, "resolve")} disabled={busyId === report.id}>
+                    Mark resolved
+                  </button>
+                )}
+                {report.status === "resolved" && (
+                  <button className="btn small secondary" onClick={() => act(report.id, "reopen")} disabled={busyId === report.id}>
+                    Reopen
+                  </button>
+                )}
+                <button className="btn small danger" onClick={() => remove(report.id)} disabled={busyId === report.id}>
+                  Delete report
+                </button>
+              </div>
             </article>
           ))}
         </>
