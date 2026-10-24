@@ -15,6 +15,7 @@ function newReport(id: string, hash: string): NewReport {
     reporterHash: hash,
     unitLabel: "4B",
     description: "Leak under sink",
+    isPublic: true,
     category: "water_leak",
     severity: "standard",
     aiCategory: "water_leak",

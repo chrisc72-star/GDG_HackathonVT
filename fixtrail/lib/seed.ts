@@ -70,6 +70,7 @@ export function buildSeedReports(now: Date): Report[] {
       reporterHash: `demo-household-${row.household}`,
       unitLabel: "",
       description: "",
+      isPublic: true,
       category: row.category,
       severity: row.severity,
       aiCategory: row.category,

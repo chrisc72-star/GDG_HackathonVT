@@ -112,8 +112,9 @@ export default function MyReportsPage() {
     <>
       <h1>My reports</h1>
       <p className="lead">
-        Only this device can see these. If you clear your browser data you will lose access to them, so
-        download your notices.
+        This device manages these reports. Their submitted photos and descriptions are also visible to anyone
+        on the building dashboard; unit labels and reporter identities are not shown there. If you clear your
+        browser data you will lose access to owner controls, so download your notices.
       </p>
 
       <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>{message}</div>

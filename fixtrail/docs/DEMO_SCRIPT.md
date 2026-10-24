@@ -17,12 +17,12 @@
 ## 1:10 to 1:40 — Building patterns
 
 Open the Maple Ridge dashboard. "Four households have open mold reports. No one sees units, photos, or descriptions, only counts, and only once at least three households have reported."
-Open Pine Court: "Two households. The page shows nothing, to protect privacy."
+Open Pine Court: "Aggregate statistics stay hidden until enough households have reported; the community feed still shows reports that were submitted publicly."
 
 ## 1:40 to 2:00 — Responsible AI and close
 
 - "Low confidence asks the tenant to confirm. A gas smell can never be rated below emergency. Non-housing photos are rejected."
-- "Photos lose GPS data in the browser before upload. Every tenant can delete everything with one button."
+- "Photos lose GPS data in the browser before upload. Reports are public on the building page, and each tenant can delete their report and photo."
 - Tracks to name: say only the ones you actually fit. Do not claim the Gemma track when Claude is the classifier; Open-Source (public repo, MIT, README); Best UI/UX if you polished the flow.
 
 ## If something breaks live

@@ -24,6 +24,31 @@ export interface ReportView {
   deadline: DeadlineInfo;
 }
 
+/** Fields intentionally visible to anyone viewing a building's public feed. */
+export interface PublicReportView {
+  id: string;
+  buildingId: string;
+  description: string;
+  category: Report["category"];
+  severity: Report["severity"];
+  status: Report["status"];
+  reportedAt: string;
+  hasPhoto: boolean;
+}
+
+export function toPublicReportView(r: Report): PublicReportView {
+  return {
+    id: r.id,
+    buildingId: r.buildingId,
+    description: r.description,
+    category: r.category,
+    severity: r.severity,
+    status: r.status,
+    reportedAt: r.reportedAt.toISOString(),
+    hasPhoto: r.photoPath !== null,
+  };
+}
+
 export function toReportView(r: Report, now: Date): ReportView {
   return {
     id: r.id,

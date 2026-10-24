@@ -12,10 +12,10 @@ A chatbot can explain a photo once. FixTrail's value comes from the system aroun
 
 | Capability | Why a one-off prompt can't do it |
 | --- | --- |
-| **Persistent, dated record** with the photo stored privately | A chat has no durable, timestamped evidence trail you can hand to a landlord or agency |
+| **Persistent, dated record** with a public building feed | A chat has no durable, timestamped evidence trail or shared view of a building's repair issues |
 | **Deadline engine** (plain date math, unit tested) | Deadlines must be exactly right; this is deliberately *not* delegated to an LLM |
 | **Building-level patterns** across many households | Needs shared state across users; no single conversation can see it |
-| **Privacy-preserving aggregation** (k-anonymity threshold) | Requires a data layer with rules about what may be shown |
+| **Building-level patterns** with a k-anonymity threshold for aggregate statistics | Requires a data layer with rules about what may be shown |
 | **Generated repair notice** with photo, timeline, and citation | Output is a document built from stored data, not a chat answer |
 | **Safety rules around the model** (severity floors, schema validation, abstain-on-doubt) | Guardrails live in code, outside the prompt |
 
@@ -33,13 +33,15 @@ Browser (Next.js, mobile-first, keyboard accessible)
   │  photo compressed + EXIF/GPS stripped client-side (canvas re-encode)
   ▼
 Next.js route handlers (server)
-  ├─ POST /api/classify ──► Anthropic Claude Messages API ──► JSON
+  ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Claude ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
   ├─ GET/PATCH/DELETE /api/reports/[id]   (owner only)
   ├─ POST /api/reports/[id]/notice ──► pdf-lib ──► PDF
   └─ GET /api/buildings/[id] ──► aggregate.ts (k-anonymity) ──► counts only
 ```
+
+Building pages also show the 50 most recent submitted reports, with their photos and descriptions. Submitters must confirm that those fields will be public. Unit labels and reporter identities are not included in the public feed. The Supabase photo bucket stays private; the app streams consented report photos through a public read endpoint.
 
 - **Identity:** no accounts for the one-day build. Each device holds a random token; the server stores only its SHA-256 hash and returns "not found" for anything not owned by the caller.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
@@ -65,7 +67,8 @@ With no environment variables the app runs in **demo mode**: in-memory data seed
 1. Create a project at https://supabase.com
 2. In the SQL editor, run `supabase/schema.sql`.
 3. Put `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key is server-only. Never expose it in client code.
-4. Optional: `npm run seed:supabase` loads the fictional demo buildings and reports.
+4. For an existing Supabase project, run `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql` in the SQL editor. New projects get the same rate-limit function from `supabase/schema.sql`.
+5. Optional: `npm run seed:supabase` loads the fictional demo buildings and reports.
 
 ### Deploy (Vercel, free tier)
 
@@ -105,7 +108,7 @@ Also run before you submit: Lighthouse accessibility audit, a full keyboard-only
 | AI integration and necessity | Photo understanding with structured output; deadlines/aggregation intentionally not AI |
 | Architectural soundness | Store interface, schema validation, tests, working prototype |
 | Safety and grounding | `lib/safety.ts`, `lib/classify.ts` (schema, floors, abstain, injection handling) |
-| Privacy | EXIF stripped in browser, token hashed, private bucket, RLS on, k-anonymity, delete-all button |
+| Privacy | Public visibility is disclosed before submission; EXIF stripped in browser, device token hashed, unit label omitted from public feed, private bucket with RLS, aggregate statistics use k-anonymity, delete-all button |
 | Inclusive design | Labeled form controls, skip link, focus styles, status never color-only, live regions, 44px targets (built toward WCAG 2.1 AA; run Lighthouse and a screen-reader test before claiming it) |
 | Deployment viability | One repo, free-tier stack, `.env.example`, no server to run |
 | Inference cost | One small image call per report; photos downscaled to 1280px; see below |
@@ -125,9 +128,9 @@ Photos are downscaled to at most 1280 px before upload, and each report makes on
 ## Known limitations (be upfront with judges)
 
 - **No real accounts.** Device tokens are enough for a demo, but lose the browser data and you lose access. Next step: Supabase Auth.
-- **Dashboard counts are self-reported** and can be gamed; the k-anonymity threshold limits privacy risk, not manipulation.
+- **Dashboard reports and counts are user-submitted** and can be gamed; the k-anonymity threshold applies to aggregate statistics, while individual reports are public after submission consent.
 - **Response times are defaults, not law.** `lib/jurisdiction.ts` holds the requested response windows (1 / 3 / 14 / 30 days) and legal citations. The windows are app defaults. The two section-level citations are marked `needsVerification` and are **not** printed in notices until someone checks them against the current Virginia Code and sets `verified: true`. Have someone confirm before you present anything as legal guidance.
-- **In-memory rate limiting** resets per serverless instance.
+- **Other rate limits** (building creation and report submission) still use in-memory counters; photo-analysis limits use the shared Supabase counter.
 - **Virginia only** for now; adding a state means adding a jurisdiction config.
 
 ## Project layout

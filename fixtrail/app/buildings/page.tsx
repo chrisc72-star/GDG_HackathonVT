@@ -11,7 +11,7 @@ export default async function BuildingsPage() {
       <RuntimeBanner />
       <h1>Buildings</h1>
       <p className="lead">
-        Combined, anonymous repair activity for each building. Individual reports are never shown.
+        Browse each building’s community reports, including the photos and descriptions people chose to submit.
       </p>
       <p>
         <Link className="btn" href="/buildings/new">Add a building</Link>
