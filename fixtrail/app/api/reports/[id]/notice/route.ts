@@ -1,6 +1,5 @@
 import { json, reporterHashFrom } from "@/lib/http";
 import { generateNoticePdf } from "@/lib/notice";
-import { sanitizeText } from "@/lib/safety";
 import { getStore } from "@/lib/store";
 
 export const runtime = "nodejs";
@@ -9,7 +8,7 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 /** Generate a repair-notice PDF for one of the caller's own reports. */
-export async function POST(req: Request, ctx: Ctx) {
+export async function POST(_req: Request, ctx: Ctx) {
   const hash = reporterHashFrom(req);
   if (!hash) return json({ error: "Missing reporter token." }, 401);
 
@@ -21,19 +20,12 @@ export async function POST(req: Request, ctx: Ctx) {
   const building = await store.getBuilding(report.buildingId);
   if (!building) return json({ error: "Building not found." }, 404);
 
-  let body: { tenantName?: string; landlordName?: string } = {};
-  try {
-    body = await req.json();
-  } catch {
-    /* names are optional */
-  }
-
   const photo = await store.getPhoto(report);
   const pdf = await generateNoticePdf({
     report,
     building,
-    tenantName: sanitizeText(body.tenantName ?? "", 80),
-    landlordName: sanitizeText(body.landlordName ?? "", 80),
+    tenantName: report.tenantName,
+    landlordName: report.landlordName,
     photo,
     now: new Date(),
   });

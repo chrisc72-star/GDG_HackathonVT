@@ -70,11 +70,21 @@ export async function POST(req: Request) {
   const now = new Date();
   const bytes = new Uint8Array(await photo.file.arrayBuffer());
 
+  const unitField = form.get("unitLabel");
+  if (unitField !== null && typeof unitField !== "string") return json({ error: "Unit must be a whole number." }, 400);
+  const unitLabel = typeof unitField === "string" ? unitField.trim() : "";
+  if (unitLabel && !/^\d{1,40}$/.test(unitLabel)) return json({ error: "Unit must be a whole number." }, 400);
+  const tenantName = sanitizeText(String(form.get("tenantName") ?? ""), 80);
+  const landlordName = sanitizeText(String(form.get("landlordName") ?? ""), 80);
+  if (!tenantName || !landlordName) return json({ error: "Please enter both names." }, 400);
+
   const created = await store.createReport({
     id: randomUUID(),
     buildingId,
     reporterHash: hash,
-    unitLabel: sanitizeText(String(form.get("unitLabel") ?? ""), 40),
+    tenantName,
+    landlordName,
+    unitLabel,
     description: sanitizeText(String(form.get("description") ?? ""), 500),
     category,
     severity,

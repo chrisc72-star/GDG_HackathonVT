@@ -79,6 +79,8 @@ export interface Report {
   buildingId: string;
   /** SHA-256 of the reporter's device token. Never sent to clients. */
   reporterHash: string;
+  tenantName: string;
+  landlordName: string;
   unitLabel: string;
   description: string;
   category: Category;

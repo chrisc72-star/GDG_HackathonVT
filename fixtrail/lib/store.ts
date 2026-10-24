@@ -97,3 +97,13 @@ export function getStore(): Store {
   }
   return globalForStore.__fixtrailStore;
 }
+
+/** Remove only the fictional demo household rows, preserving user reports. */
+export async function removeDemoSeedReports(): Promise<void> {
+  const store = getStore();
+  for (const building of DEMO_BUILDINGS) {
+    const reports = await store.listReportsForBuilding(building.id);
+    const demoReports = reports.filter((report) => report.reporterHash.startsWith("demo-household-"));
+    await Promise.all(demoReports.map((report) => store.deleteReport(report.id)));
+  }
+}

@@ -5,6 +5,8 @@ import type { Report } from "./types";
 export interface ReportView {
   id: string;
   buildingId: string;
+  tenantName: string;
+  landlordName: string;
   unitLabel: string;
   description: string;
   category: Report["category"];
@@ -28,6 +30,8 @@ export function toReportView(r: Report, now: Date): ReportView {
   return {
     id: r.id,
     buildingId: r.buildingId,
+    tenantName: r.tenantName,
+    landlordName: r.landlordName,
     unitLabel: r.unitLabel,
     description: r.description,
     category: r.category,

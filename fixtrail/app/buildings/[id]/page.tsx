@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RuntimeBanner } from "@/components/RuntimeBanner";
+import { BuildingMyReports } from "@/components/BuildingMyReports";
 import { K_THRESHOLD, summarizeBuilding } from "@/lib/aggregate";
-import { getStore } from "@/lib/store";
+import { getStore, removeDemoSeedReports } from "@/lib/store";
 import { CATEGORY_LABELS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function BuildingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await removeDemoSeedReports();
   const store = getStore();
   const building = await store.getBuilding(id);
   if (!building) notFound();
@@ -95,6 +97,8 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
           </div>
         </>
       )}
+
+      <BuildingMyReports buildingId={building.id} />
 
       <p className="meta" style={{ marginTop: "1.5rem" }}>
         Numbers come from tenant-submitted reports and may not reflect every household. They show

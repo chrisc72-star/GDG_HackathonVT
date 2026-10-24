@@ -18,6 +18,8 @@ create table if not exists reports (
   id               uuid primary key,
   building_id      uuid not null references buildings(id) on delete cascade,
   reporter_hash    text not null,              -- SHA-256 of the device token; raw token never stored
+  tenant_name      text not null default '',
+  landlord_name    text not null default '',
   unit_label       text not null default '',   -- private to the reporter
   description      text not null default '',   -- private to the reporter
   category         text not null,
@@ -37,6 +39,9 @@ create table if not exists reports (
   resolved_at      timestamptz,
   photo_path       text
 );
+
+alter table reports add column if not exists tenant_name text not null default '';
+alter table reports add column if not exists landlord_name text not null default '';
 
 create index if not exists reports_building_idx on reports (building_id);
 create index if not exists reports_reporter_idx on reports (reporter_hash);

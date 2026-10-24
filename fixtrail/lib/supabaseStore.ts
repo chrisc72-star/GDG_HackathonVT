@@ -7,6 +7,8 @@ interface ReportRow {
   id: string;
   building_id: string;
   reporter_hash: string;
+  tenant_name: string;
+  landlord_name: string;
   unit_label: string;
   description: string;
   category: string;
@@ -43,6 +45,8 @@ export function rowToReport(r: ReportRow): Report {
     id: r.id,
     buildingId: r.building_id,
     reporterHash: r.reporter_hash,
+    tenantName: r.tenant_name ?? "",
+    landlordName: r.landlord_name ?? "",
     unitLabel: r.unit_label,
     description: r.description,
     category: r.category as Category,
@@ -69,6 +73,8 @@ export function reportToRow(r: Report): ReportRow {
     id: r.id,
     building_id: r.buildingId,
     reporter_hash: r.reporterHash,
+    tenant_name: r.tenantName,
+    landlord_name: r.landlordName,
     unit_label: r.unitLabel,
     description: r.description,
     category: r.category,

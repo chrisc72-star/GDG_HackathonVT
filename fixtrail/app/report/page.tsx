@@ -28,6 +28,8 @@ type AnalyzeResponse = Analysis | { rejected: string; provider: string; model: s
 export default function ReportPage() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [buildingId, setBuildingId] = useState("");
+  const [tenantName, setTenantName] = useState("");
+  const [landlordName, setLandlordName] = useState("");
   const [unitLabel, setUnitLabel] = useState("");
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState<Blob | null>(null);
@@ -122,6 +124,8 @@ export default function ReportPage() {
       const form = new FormData();
       form.set("photo", photo, "photo.jpg");
       form.set("buildingId", buildingId);
+      form.set("tenantName", tenantName.trim());
+      form.set("landlordName", landlordName.trim());
       form.set("unitLabel", unitLabel);
       form.set("description", description);
       form.set("category", category);
@@ -179,7 +183,18 @@ export default function ReportPage() {
 
       <form className="card" onSubmit={analyze} aria-busy={busy !== "idle"}>
         <fieldset>
-          <legend>1. Tell us where and what</legend>
+          <legend>1. Personal and building details</legend>
+
+          <div className="grid cols-3">
+            <div className="field">
+              <label htmlFor="tenant-name">Your name</label>
+              <input id="tenant-name" type="text" autoComplete="name" maxLength={80} required value={tenantName} onChange={(e) => setTenantName(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="landlord-name">Landlord or manager</label>
+              <input id="landlord-name" type="text" autoComplete="organization" maxLength={80} required value={landlordName} onChange={(e) => setLandlordName(e.target.value)} />
+            </div>
+          </div>
 
           <div className="field">
             <label htmlFor="building">Building</label>
@@ -196,10 +211,14 @@ export default function ReportPage() {
 
           <div className="field">
             <label htmlFor="unit">
-              Unit <span className="hint">Optional. Only you and your notice see this.</span>
+              Unit number <span className="hint">Optional. Whole numbers only. Only you and your notice see this.</span>
             </label>
-            <input id="unit" type="text" maxLength={40} value={unitLabel} onChange={(e) => setUnitLabel(e.target.value)} />
+            <input id="unit" type="number" inputMode="numeric" min="0" step="1" value={unitLabel} onChange={(e) => setUnitLabel(e.target.value)} />
           </div>
+        </fieldset>
+
+        <fieldset style={{ marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid var(--line)" }}>
+          <legend>2. Photo and issue details</legend>
 
           <div className="field">
             <label htmlFor="photo">
@@ -238,7 +257,8 @@ export default function ReportPage() {
 
       {analysis && (
         <section className="card" aria-labelledby="review-title">
-          <h2 id="review-title" ref={resultRef} tabIndex={-1}>2. Review the suggestion</h2>
+          <h2 id="review-title" ref={resultRef} tabIndex={-1}>3. Review and confirm</h2>
+          <p>Check the suggested category and priority. You can change either before saving.</p>
 
           {analysis.emergencyNotice && (
             <div className="notice bad" role="alert">{analysis.emergencyNotice}</div>

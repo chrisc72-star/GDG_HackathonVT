@@ -13,6 +13,8 @@ function newReport(id: string, hash: string): NewReport {
     id,
     buildingId: DEMO_BUILDINGS[0].id,
     reporterHash: hash,
+    tenantName: "Alex Tenant",
+    landlordName: "Example Property Mgmt",
     unitLabel: "4B",
     description: "Leak under sink",
     category: "water_leak",

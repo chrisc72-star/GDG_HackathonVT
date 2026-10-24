@@ -5,16 +5,15 @@ import { useCallback, useEffect, useState } from "react";
 import { DeadlineBadge, SeverityBadge, StatusBadge } from "@/components/Badges";
 import { api, getReporterToken } from "@/lib/client";
 import type { ReportView } from "@/lib/serialize";
-import { CATEGORY_LABELS, type Building } from "@/lib/types";
+import { CATEGORY_LABELS, SEVERITY_RANK, type Building } from "@/lib/types";
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 export default function MyReportsPage() {
   const [reports, setReports] = useState<ReportView[] | null>(null);
+  const [buildingFilter, setBuildingFilter] = useState("");
   const [buildings, setBuildings] = useState<Record<string, Building>>({});
-  const [tenantName, setTenantName] = useState("");
-  const [landlordName, setLandlordName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -34,8 +33,7 @@ export default function MyReportsPage() {
 
   useEffect(() => {
     getReporterToken();
-    setTenantName(localStorage.getItem("fixtrail.tenantName") ?? "");
-    setLandlordName(localStorage.getItem("fixtrail.landlordName") ?? "");
+    setBuildingFilter(new URLSearchParams(window.location.search).get("building") ?? "");
     load();
   }, [load]);
 
@@ -82,16 +80,18 @@ export default function MyReportsPage() {
     }
   }
 
+  const sortedReports = reports?.filter((report) => !buildingFilter || report.buildingId === buildingFilter).sort((a, b) =>
+    SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity] ||
+    new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime(),
+  );
+
   async function downloadNotice(id: string) {
     setBusyId(id);
     setError(null);
     try {
-      localStorage.setItem("fixtrail.tenantName", tenantName);
-      localStorage.setItem("fixtrail.landlordName", landlordName);
       const res = await fetch(`/api/reports/${id}/notice`, {
         method: "POST",
-        headers: { "content-type": "application/json", "x-reporter-token": getReporterToken() },
-        body: JSON.stringify({ tenantName, landlordName }),
+        headers: { "x-reporter-token": getReporterToken() },
       });
       if (!res.ok) throw new Error("Could not generate the notice.");
       const url = URL.createObjectURL(await res.blob());
@@ -110,7 +110,7 @@ export default function MyReportsPage() {
 
   return (
     <>
-      <h1>My reports</h1>
+      <h1>{buildingFilter ? `My reports at ${buildings[buildingFilter]?.name ?? "this building"}` : "My reports"}</h1>
       <p className="lead">
         Only this device can see these. If you clear your browser data you will lose access to them, so
         download your notices.
@@ -119,46 +119,34 @@ export default function MyReportsPage() {
       <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>{message}</div>
       {error && <div className="notice bad" role="alert">{error}</div>}
 
-      <section className="card" aria-labelledby="names-title">
-        <h2 id="names-title">Notice details</h2>
-        <p className="meta">Used on the PDF notice. Saved only in this browser.</p>
-        <div className="grid cols-3">
-          <div className="field">
-            <label htmlFor="tenant">Your name</label>
-            <input id="tenant" type="text" maxLength={80} value={tenantName} onChange={(e) => setTenantName(e.target.value)} />
-          </div>
-          <div className="field">
-            <label htmlFor="landlord">Landlord or manager</label>
-            <input id="landlord" type="text" maxLength={80} value={landlordName} onChange={(e) => setLandlordName(e.target.value)} />
-          </div>
-        </div>
-      </section>
-
       {reports === null && !error && <p>Loading your reports…</p>}
 
-      {reports && reports.length === 0 && (
+      {sortedReports && sortedReports.length === 0 && (
         <div className="card">
-          <p>You have not reported anything yet.</p>
-          <Link className="btn" href="/report">Report a problem</Link>
+          <p>{buildingFilter ? "You have no reports for this building yet." : "You have not reported anything yet."}</p>
+          <Link className="btn" href={buildingFilter ? `/buildings/${buildingFilter}` : "/report"}>{buildingFilter ? "Back to building" : "Report a problem"}</Link>
         </div>
       )}
 
-      {reports?.map((r) => (
+      {sortedReports?.map((r) => (
         <article key={r.id} className="card report" aria-labelledby={`t-${r.id}`}>
           <h3 id={`t-${r.id}`}>{CATEGORY_LABELS[r.category]}</h3>
           <p className="meta">
             {buildings[r.buildingId]?.name ?? "Building"}
             {r.unitLabel ? ` · Unit ${r.unitLabel}` : ""} · Reported {fmt(r.reportedAt)} · Response requested by {fmt(r.dueAt)}
           </p>
+          {r.deadline.state === "overdue" && (
+            <div className="notice bad" role="status">
+              <strong>Overdue:</strong> the requested response date ({fmt(r.dueAt)}) has passed.
+            </div>
+          )}
+          <p className="meta">Tenant: {r.tenantName} · Landlord or manager: {r.landlordName}</p>
           <div className="badges">
             <DeadlineBadge info={r.deadline} />
             <SeverityBadge severity={r.severity} />
             <StatusBadge status={r.status} />
           </div>
           {r.description && <p>{r.description}</p>}
-          {r.tenantEdited && (
-            <p className="meta">You changed the suggested category or priority before saving.</p>
-          )}
 
           <div className="actions">
             <button className="btn small" onClick={() => downloadNotice(r.id)} disabled={busyId === r.id}>
@@ -186,7 +174,7 @@ export default function MyReportsPage() {
         </article>
       ))}
 
-      {reports && reports.length > 0 && (
+      {!buildingFilter && reports && reports.length > 0 && (
         <section className="card" aria-labelledby="privacy-title">
           <h2 id="privacy-title">Your data</h2>
           <p>You can remove everything FixTrail has stored for this device, photos included.</p>
