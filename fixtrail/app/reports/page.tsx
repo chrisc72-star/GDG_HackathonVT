@@ -148,6 +148,15 @@ export default function MyReportsPage() {
             <StatusBadge status={r.status} />
           </div>
           {r.description && <p>{r.description}</p>}
+          {r.hasPhoto && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              className="preview"
+              src={`/api/reports/${r.id}/photo`}
+              alt={`Photo submitted with ${CATEGORY_LABELS[r.category].toLowerCase()} report`}
+              loading="lazy"
+            />
+          )}
 
           <div className="actions">
             <button className="btn small" onClick={() => downloadNotice(r.id)} disabled={busyId === r.id}>
