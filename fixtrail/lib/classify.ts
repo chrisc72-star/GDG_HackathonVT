@@ -16,7 +16,7 @@ export interface ClassifyInput {
 
 export interface ClassifyResult {
   classification: Classification;
-  provider: "gemini" | "mock" | "fallback";
+  provider: "anthropic" | "mock" | "fallback";
   model: string;
   usage?: { promptTokens: number; outputTokens: number };
   error?: string;
@@ -66,54 +66,65 @@ export function buildPrompt(description: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Gemini / Gemma via the Google AI Studio REST API.
-// Instructions go in the user turn (not systemInstruction) because some Gemma
-// endpoints reject system instructions.
+// Claude via Anthropic's Messages API.
 // ---------------------------------------------------------------------------
-async function classifyWithGoogle(
+async function classifyWithClaude(
   input: ClassifyInput,
   apiKey: string,
   model: string,
 ): Promise<ClassifyResult> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const url = "https://api.anthropic.com/v1/messages";
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25_000);
   try {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
       signal: controller.signal,
       body: JSON.stringify({
-        contents: [
+        model,
+        max_tokens: 400,
+        messages: [
           {
             role: "user",
-            parts: [
-              { text: buildPrompt(input.description) },
-              { inline_data: { mime_type: input.mimeType, data: input.imageBase64 } },
+            content: [
+              { type: "text", text: buildPrompt(input.description) },
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: input.mimeType,
+                  data: input.imageBase64,
+                },
+              },
             ],
           },
         ],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 400 },
       }),
     });
     if (!res.ok) {
       throw new Error(`Model API returned ${res.status}`);
     }
     const data = (await res.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
-      usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+      content?: { type?: string; text?: string }[];
+      usage?: { input_tokens?: number; output_tokens?: number };
     };
-    const text = (data.candidates?.[0]?.content?.parts ?? [])
-      .map((p) => p.text ?? "")
+    const text = (data.content ?? [])
+      .filter((block) => block.type === "text")
+      .map((block) => block.text ?? "")
       .join("");
     const classification = parseModelJson(text);
     return {
       classification,
-      provider: "gemini",
+      provider: "anthropic",
       model,
       usage: {
-        promptTokens: data.usageMetadata?.promptTokenCount ?? 0,
-        outputTokens: data.usageMetadata?.candidatesTokenCount ?? 0,
+        promptTokens: data.usage?.input_tokens ?? 0,
+        outputTokens: data.usage?.output_tokens ?? 0,
       },
     };
   } finally {
@@ -184,13 +195,13 @@ export function classifyMock(description: string): ClassifyResult {
 // still gets a form they can fill in manually.
 // ---------------------------------------------------------------------------
 export async function classifyReport(input: ClassifyInput): Promise<ClassifyResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   const model = process.env.AI_MODEL;
 
   if (!apiKey || !model) return classifyMock(input.description);
 
   try {
-    return await classifyWithGoogle(input, apiKey, model);
+    return await classifyWithClaude(input, apiKey, model);
   } catch (err) {
     return {
       provider: "fallback",

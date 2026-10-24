@@ -23,7 +23,7 @@ Open Pine Court: "Two households. The page shows nothing, to protect privacy."
 
 - "Low confidence asks the tenant to confirm. A gas smell can never be rated below emergency. Non-housing photos are rejected."
 - "Photos lose GPS data in the browser before upload. Every tenant can delete everything with one button."
-- Tracks to name: say only the ones you actually fit. Gemma 4 only if Gemma 4 is truly the classifier; Open-Source (public repo, MIT, README); Best UI/UX if you polished the flow.
+- Tracks to name: say only the ones you actually fit. Do not claim the Gemma track when Claude is the classifier; Open-Source (public repo, MIT, README); Best UI/UX if you polished the flow.
 
 ## If something breaks live
 

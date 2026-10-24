@@ -2,7 +2,7 @@
  * Accuracy evaluation for the photo classifier.
  *
  *   1. Put labeled photos in eval/images/ and list them in eval/labels.csv
- *   2. Set GEMINI_API_KEY and AI_MODEL in .env.local
+ *   2. Set ANTHROPIC_API_KEY and AI_MODEL in .env.local
  *   3. npm run eval
  *
  * Writes eval/RESULTS.md. Put the headline numbers in your README.
@@ -43,11 +43,11 @@ async function main() {
   const root = path.resolve(__dirname, "..");
   loadEnvFile(path.join(root, ".env.local"));
 
-  if (!process.env.GEMINI_API_KEY || !process.env.AI_MODEL) {
+  if (!process.env.ANTHROPIC_API_KEY || !process.env.AI_MODEL) {
     if (process.env.EVAL_ALLOW_MOCK !== "1") {
       console.error(
         "No model configured. The mock classifier ignores photos, so its accuracy is meaningless.\n" +
-          "Set GEMINI_API_KEY and AI_MODEL in .env.local (or set EVAL_ALLOW_MOCK=1 to test this script itself).",
+          "Set ANTHROPIC_API_KEY and AI_MODEL in .env.local (or set EVAL_ALLOW_MOCK=1 to test this script itself).",
       );
       process.exit(1);
     }

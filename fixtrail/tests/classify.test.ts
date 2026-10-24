@@ -53,50 +53,46 @@ describe("classifyReport", () => {
   const input = { imageBase64: "AAAA", mimeType: "image/jpeg", description: "water leak under sink" };
 
   it("uses the mock when no model is configured", async () => {
-    vi.stubEnv("GEMINI_API_KEY", "");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.stubEnv("AI_MODEL", "");
     const r = await classifyReport(input);
     expect(r.provider).toBe("mock");
   });
 
   it("calls the model API and parses its answer", async () => {
-    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("AI_MODEL", "test-model");
     const body = {
-      candidates: [
-        {
-          content: {
-            parts: [
-              {
-                text: JSON.stringify({
-                  category: "water_leak",
-                  severity: "standard",
-                  confidence: 0.9,
-                  visible_evidence: "Water pooling under a sink.",
-                }),
-              },
-            ],
-          },
-        },
-      ],
-      usageMetadata: { promptTokenCount: 300, candidatesTokenCount: 40 },
+      content: [{ type: "text", text: JSON.stringify({
+        category: "water_leak",
+        severity: "standard",
+        confidence: 0.9,
+        visible_evidence: "Water pooling under a sink.",
+      }) }],
+      usage: { input_tokens: 300, output_tokens: 40 },
     };
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
     const r = await classifyReport(input);
-    expect(r.provider).toBe("gemini");
+    expect(r.provider).toBe("anthropic");
     expect(r.classification.category).toBe("water_leak");
     expect(r.usage).toEqual({ promptTokens: 300, outputTokens: 40 });
     const [url, init] = fetchMock.mock.calls[0];
-    expect(String(url)).toContain("test-model:generateContent");
+    expect(String(url)).toBe("https://api.anthropic.com/v1/messages");
     // The API key goes in a header, never in the URL.
     expect(String(url)).not.toContain("test-key");
-    expect((init as RequestInit).headers).toMatchObject({ "x-goog-api-key": "test-key" });
+    expect((init as RequestInit).headers).toMatchObject({ "x-api-key": "test-key", "anthropic-version": "2023-06-01" });
+    const requestBody = JSON.parse(String((init as RequestInit).body));
+    expect(requestBody.model).toBe("test-model");
+    expect(requestBody.messages[0].content).toContainEqual({
+      type: "image",
+      source: { type: "base64", media_type: "image/jpeg", data: "AAAA" },
+    });
   });
 
   it("falls back gracefully when the API errors", async () => {
-    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("nope", { status: 500 })));
     const r = await classifyReport(input);
@@ -105,16 +101,16 @@ describe("classifyReport", () => {
   });
 
   it("falls back gracefully when the model returns junk", async () => {
-    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("AI_MODEL", "test-model");
-    const junk = { candidates: [{ content: { parts: [{ text: "I like turtles" }] } }] };
+    const junk = { content: [{ type: "text", text: "I like turtles" }] };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(junk), { status: 200 })));
     const r = await classifyReport(input);
     expect(r.provider).toBe("fallback");
   });
 
   it("falls back when the network throws", async () => {
-    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("AI_MODEL", "test-model");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
     const r = await classifyReport(input);

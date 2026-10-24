@@ -1,12 +1,12 @@
 export interface RuntimeInfo {
-  /** "gemini" means a real model id is configured (it may be a Gemma or Gemini model). */
+  /** A Claude model is configured for photo analysis. */
   aiMode: "model" | "mock";
   aiModel: string | null;
   storeMode: "supabase" | "memory";
 }
 
 export function getRuntimeInfo(): RuntimeInfo {
-  const hasModel = !!process.env.GEMINI_API_KEY && !!process.env.AI_MODEL;
+  const hasModel = !!process.env.ANTHROPIC_API_KEY && !!process.env.AI_MODEL;
   return {
     aiMode: hasModel ? "model" : "mock",
     aiModel: hasModel ? (process.env.AI_MODEL as string) : null,

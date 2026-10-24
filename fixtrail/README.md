@@ -33,7 +33,7 @@ Browser (Next.js, mobile-first, keyboard accessible)
   │  photo compressed + EXIF/GPS stripped client-side (canvas re-encode)
   ▼
 Next.js route handlers (server)
-  ├─ POST /api/classify ──► Google AI Studio API (Gemma / Gemini) ──► JSON
+  ├─ POST /api/classify ──► Anthropic Claude Messages API ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
   ├─ GET/PATCH/DELETE /api/reports/[id]   (owner only)
@@ -43,7 +43,7 @@ Next.js route handlers (server)
 
 - **Identity:** no accounts for the one-day build. Each device holds a random token; the server stores only its SHA-256 hash and returns "not found" for anything not owned by the caller.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
-- **Classifier:** `lib/classify.ts` calls the Google AI Studio REST API with the model id you set in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
+- **Classifier:** `lib/classify.ts` calls Anthropic's Messages API with the Claude model id in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
 
 ## Run it locally (2 minutes, no keys needed)
 
@@ -56,9 +56,9 @@ With no environment variables the app runs in **demo mode**: in-memory data seed
 
 ### Turn on the real model
 
-1. Create a key at https://aistudio.google.com/apikey
-2. `cp .env.example .env.local` and set `GEMINI_API_KEY` and `AI_MODEL` (use the exact model id shown in AI Studio).
-3. **Check that your chosen model accepts image input.** If a Gemma 4 variant does, use it and enter the Gemma track. If not, use a Gemini model and describe the setup honestly in your submission.
+1. Create an API key in the [Anthropic Console](https://console.anthropic.com/settings/keys). API usage may require billing to be enabled.
+2. Copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` and `AI_MODEL` (use a Claude model ID available to your Anthropic account).
+3. Claude models that support vision analyze the submitted image along with the tenant's note. Keep the API key server-side and never expose it in client code or commit it.
 
 ### Turn on persistence (Supabase, free tier)
 
