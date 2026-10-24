@@ -44,7 +44,7 @@ Next.js route handlers (server)
 
 Building pages show up to 50 recent reports to authenticated residents assigned to that same hall. Submitters confirm that their photos and descriptions will be visible to those residents. Room numbers, names, and email addresses stay private. The Supabase photo bucket stays private; the app streams consented photos only to signed-in residents of the report's building.
 
-- **Identity and access:** Supabase sends a sign-in link to the resident's `@vt.edu` email. Onboarding records their name, email, room, and one residence hall. Server routes check that hall assignment on every report request.
+- **Identity and access:** Residents use Google OAuth with a verified `@vt.edu` account. Onboarding records their name, email, room, and one residence hall. Server routes check that hall assignment on every report request.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
 - **Classifier:** `lib/classify.ts` calls Anthropic's Messages API with the Claude model id in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
 
@@ -68,10 +68,12 @@ The app requires a Supabase project for authentication and resident profiles. Co
 1. Create a project at https://supabase.com.
 2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`.
 3. Set `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (same project URL), `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key must stay server-side.
-4. In **Authentication → URL Configuration**, set the local Site URL and add `http://localhost:3000/auth/callback` as a Redirect URL. For Vercel, set the production Site URL and allow `https://YOUR-VERCEL-DOMAIN/auth/callback`.
-5. Keep email signups enabled. Supabase email magic links verify the mailbox before onboarding.
-6. The onboarding list is seeded from Virginia Tech's [official residence hall directory](https://housing.vt.edu/experience/YourResidenceHall/HallListing.html). Ask the app admin to update the catalog if a hall changes.
-7. Optional: `npm run seed:supabase` adds clearly labeled fictional demo reports; these are not included in the VT building picker.
+4. Configure Google OAuth: create a Web OAuth client in Google Cloud, add the callback URI shown in **Supabase → Authentication → Providers → Google** as an authorized redirect URI in Google Cloud, then paste the Google Client ID and Client Secret into Supabase's Google provider settings and enable the provider.
+5. In Google Auth Platform, configure the consent screen for the intended audience. Publish the app or add testers as appropriate for your Google Workspace setup.
+6. In **Supabase → Authentication → URL Configuration**, set Site URL to your Vercel production origin and add `http://localhost:3000/auth/callback` and `https://YOUR-VERCEL-DOMAIN/auth/callback` as Redirect URLs. Add a Vercel preview redirect pattern only if you test OAuth on preview deployments.
+7. Google sign-in requests `@vt.edu` accounts first, and the app verifies the returned email server-side. The Google account chooser hint is not an access control; the server-side check is.
+8. The onboarding list is seeded from Virginia Tech's [official residence hall directory](https://housing.vt.edu/experience/YourResidenceHall/HallListing.html). Ask the app admin to update the catalog if a hall changes.
+9. Optional: `npm run seed:supabase` adds clearly labeled fictional demo reports; these are not included in the VT building picker.
 
 ### Deploy (Vercel, free tier)
 

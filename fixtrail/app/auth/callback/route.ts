@@ -6,6 +6,9 @@ function safeNext(path: string | null): string {
 }
 
 export async function GET(request: NextRequest) {
+  const authError = request.nextUrl.searchParams.get("error");
+  if (authError) return NextResponse.redirect(new URL("/login?error=oauth", request.url));
+
   const code = request.nextUrl.searchParams.get("code");
   if (!code) return NextResponse.redirect(new URL("/login?error=link", request.url));
 

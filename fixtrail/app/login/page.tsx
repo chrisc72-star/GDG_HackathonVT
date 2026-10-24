@@ -1,45 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "vt-email") setError("FixTrail is currently limited to Virginia Tech @vt.edu accounts.");
-    else if (params.get("error") === "link") setError("That sign-in link is invalid or expired. Request a new one.");
-    else if (params.get("setup") === "missing") setError("Supabase Auth is not configured for this deployment yet.");
+    if (params.get("error") === "vt-email") {
+      setError("FixTrail is limited to verified Virginia Tech @vt.edu accounts. Choose your VT Google account and try again.");
+    } else if (params.get("error") === "oauth" || params.get("error") === "link") {
+      setError("Google sign-in did not complete. Please try again and choose your Virginia Tech account.");
+    } else if (params.get("setup") === "missing") {
+      setError("Supabase Auth is not configured for this deployment yet.");
+    }
   }, []);
 
-  async function requestLink(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setSent(false);
-    const normalized = email.trim().toLowerCase();
-    if (!/^[^\s@]+@vt\.edu$/.test(normalized)) {
-      setError("Use your Virginia Tech email address ending in @vt.edu.");
-      return;
-    }
-
+  async function signInWithGoogle() {
     setBusy(true);
+    setError(null);
     try {
       const supabase = createSupabaseBrowserClient();
-      const redirectTo = new URL("/auth/callback?next=/onboarding", window.location.origin).toString();
-      const { error: signInError } = await supabase.auth.signInWithOtp({
-        email: normalized,
-        options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next") || "/onboarding";
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", next);
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: callback.toString(),
+          // This asks Google to show VT accounts first; the server still enforces @vt.edu.
+          queryParams: { hd: "vt.edu", prompt: "select_account" },
+        },
       });
       if (signInError) throw signInError;
-      setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not send your sign-in link. Try again shortly.");
-    } finally {
+      setError(err instanceof Error ? err.message : "Could not start Google sign-in. Please try again.");
       setBusy(false);
     }
   }
@@ -48,32 +47,13 @@ export default function LoginPage() {
     <>
       <p><Link href="/">← FixTrail home</Link></p>
       <h1>Sign in with Virginia Tech</h1>
-      <p className="lead">We’ll email a secure sign-in link to your verified @vt.edu address.</p>
+      <p className="lead">Continue with your VT Google account ending in @vt.edu. We use your verified email to limit access to Virginia Tech residents.</p>
       {error && <div className="notice bad" role="alert">{error}</div>}
-      {sent && (
-        <div className="notice" role="status">
-          Check your Virginia Tech inbox and open the sign-in link in this browser. After you verify your email,
-          you’ll choose your residence hall and add your name and room number.
-        </div>
-      )}
-      <form className="card" onSubmit={requestLink} aria-busy={busy}>
-        <div className="field">
-          <label htmlFor="vt-email">Virginia Tech email</label>
-          <input
-            id="vt-email"
-            type="email"
-            autoComplete="email"
-            required
-            maxLength={254}
-            placeholder="you@vt.edu"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </div>
-        <button className="btn" type="submit" disabled={busy}>
-          {busy ? "Sending link…" : "Email me a sign-in link"}
+      <div className="card" aria-busy={busy}>
+        <button className="btn" type="button" onClick={signInWithGoogle} disabled={busy}>
+          {busy ? "Connecting to Google…" : "Continue with Google"}
         </button>
-      </form>
+      </div>
     </>
   );
 }
