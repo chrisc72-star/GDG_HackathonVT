@@ -28,9 +28,7 @@ type AnalyzeResponse = Analysis | { rejected: string; provider: string; model: s
 export default function ReportPage() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [buildingId, setBuildingId] = useState("");
-  const [tenantName, setTenantName] = useState("");
   const [landlordName, setLandlordName] = useState("");
-  const [unitLabel, setUnitLabel] = useState("");
   const [description, setDescription] = useState("");
   const [publicConsent, setPublicConsent] = useState(false);
   const [photo, setPhoto] = useState<Blob | null>(null);
@@ -53,6 +51,7 @@ export default function ReportPage() {
         setBuildings(d.buildings);
         const wanted = new URLSearchParams(window.location.search).get("building");
         if (wanted && d.buildings.some((b) => b.id === wanted)) setBuildingId(wanted);
+        else if (d.buildings.length === 1) setBuildingId(d.buildings[0].id);
       })
       .catch(() => setError("Could not load the building list. Please refresh the page."));
   }, []);
@@ -125,9 +124,7 @@ export default function ReportPage() {
       const form = new FormData();
       form.set("photo", photo, "photo.jpg");
       form.set("buildingId", buildingId);
-      form.set("tenantName", tenantName.trim());
       form.set("landlordName", landlordName.trim());
-      form.set("unitLabel", unitLabel);
       form.set("description", description);
       form.set("publicConsent", String(publicConsent));
       form.set("category", category);
@@ -173,7 +170,7 @@ export default function ReportPage() {
     <>
       <h1>Report a problem</h1>
       <p className="lead">
-        Take a clear, close-up photo of the problem. After you save, the photo and description will be public on this building’s dashboard.
+        Take a clear, close-up photo of the problem. After you save, residents assigned to this building can see the photo and description on its dashboard.
         Unit labels and your identity will not be displayed.
       </p>
 
@@ -188,25 +185,19 @@ export default function ReportPage() {
 
       <form className="card" onSubmit={analyze} aria-busy={busy !== "idle"}>
         <fieldset>
-          <legend>1. Personal and building details</legend>
+          <legend>1. Building details</legend>
 
-          <div className="grid cols-3">
-            <div className="field">
-              <label htmlFor="tenant-name">Your name</label>
-              <input id="tenant-name" type="text" autoComplete="name" maxLength={80} required value={tenantName} onChange={(e) => setTenantName(e.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor="landlord-name">Landlord or manager</label>
-              <input id="landlord-name" type="text" autoComplete="organization" maxLength={80} required value={landlordName} onChange={(e) => setLandlordName(e.target.value)} />
-            </div>
+          <div className="field">
+            <label htmlFor="landlord-name">Landlord or manager</label>
+            <input id="landlord-name" type="text" autoComplete="organization" maxLength={80} required value={landlordName} onChange={(e) => setLandlordName(e.target.value)} />
           </div>
 
           <div className="field">
             <label htmlFor="building">Building</label>
             <p className="hint">
-              Don’t see your building? <Link href="/buildings/new" target="_blank" rel="noreferrer">Add it in a new tab</Link>.
+              You can report only for the residence hall in your resident profile.
             </p>
-            <select id="building" required value={buildingId} onChange={(e) => setBuildingId(e.target.value)}>
+            <select id="building" required value={buildingId} disabled={buildings.length === 1} onChange={(e) => setBuildingId(e.target.value)}>
               <option value="">Choose a building…</option>
               {buildings.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -214,16 +205,11 @@ export default function ReportPage() {
             </select>
           </div>
 
-          <div className="field">
-            <label htmlFor="unit">
-              Unit number <span className="hint">Optional. Whole numbers only. Only you and your notice see this.</span>
-            </label>
-            <input id="unit" type="number" inputMode="numeric" min="0" step="1" value={unitLabel} onChange={(e) => setUnitLabel(e.target.value)} />
-          </div>
         </fieldset>
 
         <fieldset style={{ marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid var(--line)" }}>
           <legend>2. Photo and issue details</legend>
+          <p className="hint">Your room number comes from your resident profile and is not displayed in the community feed.</p>
 
           <div className="field">
             <label htmlFor="photo">
@@ -317,8 +303,8 @@ export default function ReportPage() {
           </div>
 
           <div className="notice warn" role="note">
-            Anyone can view reports you submit here, including the photo and description. Avoid including faces,
-            names, mail, or other personal details in the photo or description. Your optional unit label stays private.
+            Other signed-in residents of this building can view your report, including its photo and description. Avoid including faces,
+            names, mail, or other personal details in the photo or description. Your room number stays private.
           </div>
 
           <div className="field">
@@ -329,7 +315,7 @@ export default function ReportPage() {
                 checked={publicConsent}
                 onChange={(e) => setPublicConsent(e.target.checked)}
               />{" "}
-              I understand the submitted photo and description will be publicly visible on the building dashboard.
+              I understand other signed-in residents assigned to this building can view the submitted photo and description.
             </label>
           </div>
 

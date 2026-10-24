@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 import { getStore } from "@/lib/store";
+import { getCurrentResident } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function BuildingsPage() {
-  const buildings = await getStore().listBuildings();
+  const resident = await getCurrentResident();
+  if (!resident) redirect("/onboarding");
+  const building = await getStore().getBuilding(resident.profile.buildingId);
+  const buildings = building ? [building] : [];
   return (
     <>
       <RuntimeBanner />
-      <h1>Buildings</h1>
+      <h1>My building</h1>
       <p className="lead">
-        Browse each building’s community reports, including the photos and descriptions people chose to submit.
-      </p>
-      <p>
-        <Link className="btn" href="/buildings/new">Add a building</Link>
+        You can view and report issues only for the residence hall selected in your resident profile.
       </p>
       <ul className="grid" style={{ listStyle: "none", padding: 0 }}>
         {buildings.map((b) => (

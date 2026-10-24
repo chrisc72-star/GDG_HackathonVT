@@ -55,6 +55,7 @@ a { color: var(--primary); text-underline-offset: 3px; }
 .brand span { color: var(--primary); }
 nav ul { list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; flex-wrap: wrap; }
 nav a { color: var(--ink); font-weight: 600; }
+.auth-controls { display: inline-flex; align-items: center; gap: 0.5rem; }
 
 main { max-width: 960px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
 

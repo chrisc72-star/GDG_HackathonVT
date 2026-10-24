@@ -1,4 +1,5 @@
-import { json, reporterHashFrom } from "@/lib/http";
+import { hashToken, json } from "@/lib/http";
+import { getCurrentResident } from "@/lib/auth";
 import { toReportView } from "@/lib/serialize";
 import { getStore } from "@/lib/store";
 
@@ -8,8 +9,10 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 async function loadOwned(req: Request, ctx: Ctx) {
-  const hash = reporterHashFrom(req);
-  if (!hash) return { error: json({ error: "Missing reporter token." }, 401) } as const;
+  void req;
+  const resident = await getCurrentResident();
+  if (!resident) return { error: json({ error: "Please sign in first." }, 401) } as const;
+  const hash = hashToken(resident.user.id);
   const { id } = await ctx.params;
   const store = getStore();
   const report = await store.getReport(id);

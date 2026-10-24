@@ -16,8 +16,8 @@ export default function HomePage() {
           tenant&rsquo;s complaint.
         </p>
         <div className="actions">
-          <Link href="/report" className="btn">Report a problem</Link>
-          <Link href="/buildings" className="btn secondary">See building dashboards</Link>
+          <Link href="/login" className="btn">Sign in with VT email</Link>
+          <Link href="/buildings" className="btn secondary">My building</Link>
         </div>
       </section>
 
@@ -47,7 +47,7 @@ export default function HomePage() {
         <div className="card">
           <h3>Public reports, private unit labels</h3>
           <p>
-            Submitted report photos and descriptions appear on the building dashboard for anyone to view.
+            Submitted report photos and descriptions appear on the dashboard for signed-in residents of that hall.
             Unit labels and device identities are not displayed.
           </p>
         </div>

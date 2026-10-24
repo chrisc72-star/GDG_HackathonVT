@@ -61,6 +61,7 @@ export interface Building {
   city: string;
   state: string;
   isDemo: boolean;
+  isVtCampus: boolean;
 }
 
 export type NewBuilding = Pick<Building, "name" | "addressLine" | "city" | "state">;
@@ -77,7 +78,7 @@ export interface Classification {
 export interface Report {
   id: string;
   buildingId: string;
-  /** SHA-256 of the reporter's device token. Never sent to clients. */
+  /** SHA-256 of the reporter's Supabase user ID. Never sent to clients. */
   reporterHash: string;
   tenantName: string;
   landlordName: string;

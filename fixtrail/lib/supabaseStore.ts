@@ -37,6 +37,7 @@ interface BuildingRow {
   city: string;
   state: string;
   is_demo: boolean;
+  is_vt_campus: boolean;
 }
 
 const toDate = (s: string | null): Date | null => (s ? new Date(s) : null);
@@ -106,6 +107,7 @@ const rowToBuilding = (b: BuildingRow): Building => ({
   city: b.city,
   state: b.state,
   isDemo: b.is_demo,
+  isVtCampus: b.is_vt_campus,
 });
 
 export function createSupabaseStore(url: string, serviceKey: string): Store {
@@ -136,6 +138,7 @@ export function createSupabaseStore(url: string, serviceKey: string): Store {
             city: input.city,
             state: input.state,
             is_demo: false,
+            is_vt_campus: false,
           })
           .select("*")
           .single(),

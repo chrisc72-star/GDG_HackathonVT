@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { DEMO_BUILDINGS, buildSeedReports } from "./seed";
+import { DEMO_BUILDINGS, VT_CAMPUS_BUILDINGS, buildSeedReports } from "./seed";
 import { createSupabaseStore } from "./supabaseStore";
 import type { Building, NewBuilding, NewReport, Report } from "./types";
 
@@ -23,7 +23,7 @@ export interface Store {
 }
 
 export function createMemoryStore(now: Date = new Date()): Store {
-  const buildings = new Map<string, Building>(DEMO_BUILDINGS.map((b) => [b.id, b]));
+  const buildings = new Map<string, Building>([...DEMO_BUILDINGS, ...VT_CAMPUS_BUILDINGS].map((b) => [b.id, b]));
   const reports = new Map<string, Report>(buildSeedReports(now).map((r) => [r.id, r]));
   const photos = new Map<string, { bytes: Uint8Array; mime: string }>();
 
@@ -33,7 +33,7 @@ export function createMemoryStore(now: Date = new Date()): Store {
       return [...buildings.values()];
     },
     async createBuilding(input) {
-      const building: Building = { id: randomUUID(), ...input, isDemo: false };
+      const building: Building = { id: randomUUID(), ...input, isDemo: false, isVtCampus: false };
       buildings.set(building.id, building);
       return building;
     },

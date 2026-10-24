@@ -7,12 +7,16 @@ import { toPublicReportView } from "@/lib/serialize";
 import { getStore, removeDemoSeedReports } from "@/lib/store";
 import { CATEGORY_LABELS } from "@/lib/types";
 import { SeverityBadge, StatusBadge } from "@/components/Badges";
+import { getCurrentResident } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function BuildingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await removeDemoSeedReports();
+  const resident = await getCurrentResident();
+  if (!resident) notFound();
+  if (resident.profile.buildingId !== id) notFound();
   const store = getStore();
   const building = await store.getBuilding(id);
   if (!building) notFound();
@@ -33,7 +37,7 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
       </p>
       <h1>{building.name}</h1>
       <p className="meta">
-        {building.addressLine}, {building.city}, {building.state}
+        {building.addressLine ? `${building.addressLine}, ` : ""}{building.city}, {building.state}
         {building.isDemo ? " · sample data, not a real building" : ""}
       </p>
 
@@ -109,7 +113,7 @@ export default async function BuildingPage({ params }: { params: Promise<{ id: s
       <section aria-labelledby="community-reports-title">
         <h2 id="community-reports-title">Community reports</h2>
         <p className="meta">
-          These reports, including their photos and descriptions, are visible to anyone. Unit labels and reporter identities are not shown.
+          These reports, including their photos and descriptions, are visible to signed-in residents assigned to this hall. Unit labels and reporter identities are not shown.
           Showing at most the 50 most recent reports.
         </p>
         {publicReports.length === 0 ? (

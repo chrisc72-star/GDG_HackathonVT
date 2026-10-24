@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthControls } from "@/components/AuthControls";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,7 +27,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ul>
               <li><Link href="/report">Report a problem</Link></li>
               <li><Link href="/reports">My reports</Link></li>
-              <li><Link href="/buildings">Buildings</Link></li>
+              <li><Link href="/buildings">My building</Link></li>
+              <li><AuthControls /></li>
             </ul>
           </nav>
         </header>

@@ -37,6 +37,7 @@ async function main() {
     city: b.city,
     state: b.state,
     is_demo: b.isDemo,
+    is_vt_campus: b.isVtCampus,
   }));
   const b = await db.from("buildings").upsert(buildings);
   if (b.error) throw new Error(`buildings: ${b.error.message}`);

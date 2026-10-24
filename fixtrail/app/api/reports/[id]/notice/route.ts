@@ -1,4 +1,5 @@
-import { json, reporterHashFrom } from "@/lib/http";
+import { hashToken, json } from "@/lib/http";
+import { getCurrentResident } from "@/lib/auth";
 import { generateNoticePdf } from "@/lib/notice";
 import { getStore } from "@/lib/store";
 
@@ -9,13 +10,16 @@ type Ctx = { params: Promise<{ id: string }> };
 
 /** Generate a repair-notice PDF for one of the caller's own reports. */
 export async function POST(req: Request, ctx: Ctx) {
-  const hash = reporterHashFrom(req);
-  if (!hash) return json({ error: "Missing reporter token." }, 401);
+  const resident = await getCurrentResident();
+  if (!resident) return json({ error: "Please sign in first." }, 401);
+  const hash = hashToken(resident.user.id);
 
   const { id } = await ctx.params;
   const store = getStore();
   const report = await store.getReport(id);
-  if (!report || report.reporterHash !== hash) return json({ error: "Report not found." }, 404);
+  if (!report || report.reporterHash !== hash || report.buildingId !== resident.profile.buildingId) {
+    return json({ error: "Report not found." }, 404);
+  }
 
   const building = await store.getBuilding(report.buildingId);
   if (!building) return json({ error: "Building not found." }, 404);

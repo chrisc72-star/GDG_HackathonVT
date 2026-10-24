@@ -112,9 +112,9 @@ export default function MyReportsPage() {
     <>
       <h1>{buildingFilter ? `My reports at ${buildings[buildingFilter]?.name ?? "this building"}` : "My reports"}</h1>
       <p className="lead">
-        This device manages these reports. Their submitted photos and descriptions are also visible to anyone
-        on the building dashboard; unit labels and reporter identities are not shown there. If you clear your
-        browser data you will lose access to owner controls, so download your notices.
+        These are the reports filed by your Virginia Tech account. Sign in again from another device to manage
+        them; only your own account can update or delete them. Community-visible photos and descriptions are
+        limited to your assigned residence hall.
       </p>
 
       <div aria-live="polite" role="status" className="meta" style={{ minHeight: "1.5rem" }}>{message}</div>

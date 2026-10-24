@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { computeDueAt } from "@/lib/deadlines";
-import { clientIp, json, reporterHashFrom, validatePhoto } from "@/lib/http";
+import { clientIp, hashToken, json, validatePhoto } from "@/lib/http";
+import { getCurrentResident } from "@/lib/auth";
 import { rateLimit } from "@/lib/rateLimit";
 import { enforceSeverityFloor, MIN_CONFIDENCE, sanitizeText } from "@/lib/safety";
 import { toReportView } from "@/lib/serialize";
@@ -16,8 +17,10 @@ function pick<T extends string>(value: unknown, allowed: readonly T[]): T | null
 
 /** List the caller's own reports. */
 export async function GET(req: Request) {
-  const hash = reporterHashFrom(req);
-  if (!hash) return json({ error: "Missing reporter token." }, 401);
+  void req;
+  const resident = await getCurrentResident();
+  if (!resident) return json({ error: "Please complete your Virginia Tech resident profile." }, 401);
+  const hash = hashToken(resident.user.id);
   const now = new Date();
   const reports = await getStore().listReportsForReporter(hash);
   return json({ reports: reports.map((r) => toReportView(r, now)) });
@@ -25,8 +28,9 @@ export async function GET(req: Request) {
 
 /** Create a report (multipart: photo + fields). */
 export async function POST(req: Request) {
-  const hash = reporterHashFrom(req);
-  if (!hash) return json({ error: "Missing reporter token." }, 401);
+  const resident = await getCurrentResident();
+  if (!resident) return json({ error: "Please complete your Virginia Tech resident profile." }, 401);
+  const hash = hashToken(resident.user.id);
   if (!rateLimit(`create:${clientIp(req)}`, 20, 60_000)) {
     return json({ error: "Too many requests. Please wait a minute and try again." }, 429);
   }
@@ -39,7 +43,7 @@ export async function POST(req: Request) {
   }
 
   if (form.get("publicConsent") !== "true") {
-    return json({ error: "Please confirm that the photo and description will be public." }, 400);
+    return json({ error: "Please confirm that residents of your assigned building can view the photo and description." }, 400);
   }
 
   const photo = validatePhoto(form.get("photo"));
@@ -47,6 +51,9 @@ export async function POST(req: Request) {
 
   const store = getStore();
   const buildingId = String(form.get("buildingId") ?? "");
+  if (buildingId !== resident.profile.buildingId) {
+    return json({ error: "You can submit reports only for your assigned residence hall." }, 403);
+  }
   const building = await store.getBuilding(buildingId);
   if (!building) return json({ error: "Please choose a building." }, 400);
 
@@ -74,21 +81,16 @@ export async function POST(req: Request) {
   const now = new Date();
   const bytes = new Uint8Array(await photo.file.arrayBuffer());
 
-  const unitField = form.get("unitLabel");
-  if (unitField !== null && typeof unitField !== "string") return json({ error: "Unit must be a whole number." }, 400);
-  const unitLabel = typeof unitField === "string" ? unitField.trim() : "";
-  if (unitLabel && !/^\d{1,40}$/.test(unitLabel)) return json({ error: "Unit must be a whole number." }, 400);
-  const tenantName = sanitizeText(String(form.get("tenantName") ?? ""), 80);
   const landlordName = sanitizeText(String(form.get("landlordName") ?? ""), 80);
-  if (!tenantName || !landlordName) return json({ error: "Please enter both names." }, 400);
+  if (!landlordName) return json({ error: "Please enter the landlord or manager name." }, 400);
 
   const created = await store.createReport({
     id: randomUUID(),
     buildingId,
     reporterHash: hash,
-    tenantName,
+    tenantName: resident.profile.fullName,
     landlordName,
-    unitLabel,
+    unitLabel: resident.profile.roomNumber,
     description: sanitizeText(String(form.get("description") ?? ""), 500),
     isPublic: true,
     category,
@@ -114,8 +116,10 @@ export async function POST(req: Request) {
 
 /** Delete everything the caller has stored. */
 export async function DELETE(req: Request) {
-  const hash = reporterHashFrom(req);
-  if (!hash) return json({ error: "Missing reporter token." }, 401);
+  void req;
+  const resident = await getCurrentResident();
+  if (!resident) return json({ error: "Please complete your Virginia Tech resident profile." }, 401);
+  const hash = hashToken(resident.user.id);
   const deleted = await getStore().deleteAllForReporter(hash);
   return json({ deleted });
 }

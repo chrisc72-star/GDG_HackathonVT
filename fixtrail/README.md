@@ -4,7 +4,7 @@
 
 FixTrail helps renters build a dated, photo-backed record of housing problems. A tenant snaps a photo, the app suggests a category and priority (and shows what it saw), a response clock starts, and one tap produces a PDF repair notice. Each building gets an anonymous dashboard that surfaces patterns, like several households reporting mold, without exposing any individual report.
 
-Built for the GDG Hacktober housing theme. MIT licensed.
+For Virginia Tech students living in on-campus residence halls. Residents verify with a `@vt.edu` email, choose one hall, and can access reports only for that hall. MIT licensed.
 
 ## Why this isn't "just ask a chatbot"
 
@@ -33,6 +33,7 @@ Browser (Next.js, mobile-first, keyboard accessible)
   │  photo compressed + EXIF/GPS stripped client-side (canvas re-encode)
   ▼
 Next.js route handlers (server)
+  ├─ Supabase Auth ──► verified @vt.edu resident profile ──► one assigned residence hall
   ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Claude ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
@@ -41,20 +42,20 @@ Next.js route handlers (server)
   └─ GET /api/buildings/[id] ──► aggregate.ts (k-anonymity) ──► counts only
 ```
 
-Building pages also show the 50 most recent submitted reports, with their photos and descriptions. Submitters must confirm that those fields will be public. Unit labels and reporter identities are not included in the public feed. The Supabase photo bucket stays private; the app streams consented report photos through a public read endpoint.
+Building pages show up to 50 recent reports to authenticated residents assigned to that same hall. Submitters confirm that their photos and descriptions will be visible to those residents. Room numbers, names, and email addresses stay private. The Supabase photo bucket stays private; the app streams consented photos only to signed-in residents of the report's building.
 
-- **Identity:** no accounts for the one-day build. Each device holds a random token; the server stores only its SHA-256 hash and returns "not found" for anything not owned by the caller.
+- **Identity and access:** Supabase sends a sign-in link to the resident's `@vt.edu` email. Onboarding records their name, email, room, and one residence hall. Server routes check that hall assignment on every report request.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
 - **Classifier:** `lib/classify.ts` calls Anthropic's Messages API with the Claude model id in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
 
-## Run it locally (2 minutes, no keys needed)
+## Run it locally
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000
 ```
 
-With no environment variables the app runs in **demo mode**: in-memory data seeded with two fictional buildings, and a keyword classifier that reads your *written description* (it does not analyze the photo, and the UI says so).
+The app requires a Supabase project for authentication and resident profiles. Copy `.env.example` to `.env.local` and set the Supabase values before signing in. `ANTHROPIC_API_KEY` is optional for local setup; without it, the classifier uses the clearly labeled keyword demo mode.
 
 ### Turn on the real model
 
@@ -64,16 +65,18 @@ With no environment variables the app runs in **demo mode**: in-memory data seed
 
 ### Turn on persistence (Supabase, free tier)
 
-1. Create a project at https://supabase.com
-2. In the SQL editor, run `supabase/schema.sql`.
-3. Put `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key is server-only. Never expose it in client code.
-4. For an existing Supabase project, run `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql` in the SQL editor. New projects get the same rate-limit function from `supabase/schema.sql`.
-5. Optional: `npm run seed:supabase` loads the fictional demo buildings and reports.
+1. Create a project at https://supabase.com.
+2. For a new project, run `supabase/schema.sql` in the SQL editor. For an existing project, run migrations in order: `supabase/migrations/20261024000000_public_reports_and_rate_limits.sql`, then `supabase/migrations/20261024000100_vt_resident_auth.sql`.
+3. Set `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (same project URL), `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. The service-role key must stay server-side.
+4. In **Authentication → URL Configuration**, set the local Site URL and add `http://localhost:3000/auth/callback` as a Redirect URL. For Vercel, set the production Site URL and allow `https://YOUR-VERCEL-DOMAIN/auth/callback`.
+5. Keep email signups enabled. Supabase email magic links verify the mailbox before onboarding.
+6. The onboarding list is seeded from Virginia Tech's [official residence hall directory](https://housing.vt.edu/experience/YourResidenceHall/HallListing.html). Ask the app admin to update the catalog if a hall changes.
+7. Optional: `npm run seed:supabase` adds clearly labeled fictional demo reports; these are not included in the VT building picker.
 
 ### Deploy (Vercel, free tier)
 
 1. Push this repo to GitHub, then import it in Vercel.
-2. Add the same environment variables from `.env.local` in the Vercel project settings.
+2. Add the same environment variables from `.env.local` in the Vercel project settings, including the public Supabase URL/publishable key and server-only service-role key.
 3. Deploy. (Vercel's request body limit is about 4.5 MB; photos are compressed to well under that in the browser, and the server rejects anything over 3 MB.)
 
 Free-tier limits and model availability change, so confirm them before demo day.
@@ -108,7 +111,7 @@ Also run before you submit: Lighthouse accessibility audit, a full keyboard-only
 | AI integration and necessity | Photo understanding with structured output; deadlines/aggregation intentionally not AI |
 | Architectural soundness | Store interface, schema validation, tests, working prototype |
 | Safety and grounding | `lib/safety.ts`, `lib/classify.ts` (schema, floors, abstain, injection handling) |
-| Privacy | Public visibility is disclosed before submission; EXIF stripped in browser, device token hashed, unit label omitted from public feed, private bucket with RLS, aggregate statistics use k-anonymity, delete-all button |
+| Privacy | Building-scoped access, public visibility disclosed before submission, EXIF stripped in browser, user ID hashed in report ownership, room omitted from community feed, private bucket with RLS, aggregate statistics use k-anonymity, delete-all button |
 | Inclusive design | Labeled form controls, skip link, focus styles, status never color-only, live regions, 44px targets (built toward WCAG 2.1 AA; run Lighthouse and a screen-reader test before claiming it) |
 | Deployment viability | One repo, free-tier stack, `.env.example`, no server to run |
 | Inference cost | One small image call per report; photos downscaled to 1280px; see below |
@@ -127,10 +130,10 @@ Photos are downscaled to at most 1280 px before upload, and each report makes on
 
 ## Known limitations (be upfront with judges)
 
-- **No real accounts.** Device tokens are enough for a demo, but lose the browser data and you lose access. Next step: Supabase Auth.
-- **Dashboard reports and counts are user-submitted** and can be gamed; the k-anonymity threshold applies to aggregate statistics, while individual reports are public after submission consent.
+- **Residence claims are self-reported.** A verified `@vt.edu` email proves access to the mailbox but does not prove current occupancy of the chosen hall; stronger verification would require VT Housing integration or admin approval.
+- **Dashboard reports and counts are user-submitted** and can be gamed; resident access is hall-scoped and aggregate statistics still use the k-anonymity threshold.
 - **Response times are defaults, not law.** `lib/jurisdiction.ts` holds the requested response windows (1 / 3 / 14 / 30 days) and legal citations. The windows are app defaults. The two section-level citations are marked `needsVerification` and are **not** printed in notices until someone checks them against the current Virginia Code and sets `verified: true`. Have someone confirm before you present anything as legal guidance.
-- **Other rate limits** (building creation and report submission) still use in-memory counters; photo-analysis limits use the shared Supabase counter.
+- **Report-submission rate limiting** still uses an in-memory per-IP counter; photo-analysis limits use the shared Supabase counter.
 - **Virginia only** for now; adding a state means adding a jurisdiction config.
 
 ## Project layout
