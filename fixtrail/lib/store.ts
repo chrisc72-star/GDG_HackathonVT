@@ -1,10 +1,12 @@
+import { randomUUID } from "node:crypto";
 import { DEMO_BUILDINGS, buildSeedReports } from "./seed";
 import { createSupabaseStore } from "./supabaseStore";
-import type { Building, NewReport, Report } from "./types";
+import type { Building, NewBuilding, NewReport, Report } from "./types";
 
 export interface Store {
   mode: "memory" | "supabase";
   listBuildings(): Promise<Building[]>;
+  createBuilding(input: NewBuilding): Promise<Building>;
   getBuilding(id: string): Promise<Building | null>;
   /** Used only for aggregation. Callers must not expose individual rows. */
   listReportsForBuilding(buildingId: string): Promise<Report[]>;
@@ -29,6 +31,11 @@ export function createMemoryStore(now: Date = new Date()): Store {
     mode: "memory",
     async listBuildings() {
       return [...buildings.values()];
+    },
+    async createBuilding(input) {
+      const building: Building = { id: randomUUID(), ...input, isDemo: false };
+      buildings.set(building.id, building);
+      return building;
     },
     async getBuilding(id) {
       return buildings.get(id) ?? null;

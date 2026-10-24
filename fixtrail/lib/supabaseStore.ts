@@ -1,6 +1,7 @@
+import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import type { Store } from "./store";
-import type { Building, Category, ClassifierCategory, Report, ReportStatus, Severity } from "./types";
+import type { Building, Category, ClassifierCategory, NewBuilding, Report, ReportStatus, Severity } from "./types";
 
 interface ReportRow {
   id: string;
@@ -113,6 +114,24 @@ export function createSupabaseStore(url: string, serviceKey: string): Store {
     async listBuildings() {
       const rows = must(await db.from("buildings").select("*").order("name"));
       return (rows as BuildingRow[]).map(rowToBuilding);
+    },
+
+    async createBuilding(input: NewBuilding) {
+      const row = must(
+        await db
+          .from("buildings")
+          .insert({
+            id: randomUUID(),
+            name: input.name,
+            address_line: input.addressLine,
+            city: input.city,
+            state: input.state,
+            is_demo: false,
+          })
+          .select("*")
+          .single(),
+      );
+      return rowToBuilding(row as BuildingRow);
     },
 
     async getBuilding(id) {

@@ -63,6 +63,8 @@ export interface Building {
   isDemo: boolean;
 }
 
+export type NewBuilding = Pick<Building, "name" | "addressLine" | "city" | "state">;
+
 export interface Classification {
   category: ClassifierCategory;
   severity: Severity;

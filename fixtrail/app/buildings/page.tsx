@@ -13,6 +13,9 @@ export default async function BuildingsPage() {
       <p className="lead">
         Combined, anonymous repair activity for each building. Individual reports are never shown.
       </p>
+      <p>
+        <Link className="btn" href="/buildings/new">Add a building</Link>
+      </p>
       <ul className="grid" style={{ listStyle: "none", padding: 0 }}>
         {buildings.map((b) => (
           <li key={b.id} className="card">

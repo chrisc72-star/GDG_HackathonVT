@@ -183,6 +183,9 @@ export default function ReportPage() {
 
           <div className="field">
             <label htmlFor="building">Building</label>
+            <p className="hint">
+              Don’t see your building? <Link href="/buildings/new" target="_blank" rel="noreferrer">Add it in a new tab</Link>.
+            </p>
             <select id="building" required value={buildingId} onChange={(e) => setBuildingId(e.target.value)}>
               <option value="">Choose a building…</option>
               {buildings.map((b) => (
