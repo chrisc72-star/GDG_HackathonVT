@@ -40,7 +40,7 @@ Browser (Next.js, mobile-first, keyboard accessible)
   ▼
 Next.js route handlers (server)
   ├─ Supabase Auth ──► verified @vt.edu resident profile ──► one selected residence hall
-  ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Claude ──► JSON
+  ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Gemma 4 ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
   ├─ GET/PATCH/DELETE /api/reports/[id]   (owner only)
@@ -52,7 +52,7 @@ Building pages show up to 50 recent reports to authenticated residents who have 
 
 - **Identity and access:** Residents use Google OAuth with a verified `@vt.edu` account. Onboarding records their name, email, room, and one residence hall. Server routes restrict community reports and photos to that selected hall. Addresses in `ADMIN_EMAILS` can view the campus-wide administrator report page.
 - **Storage:** `lib/store.ts` has two implementations behind one interface, an in-memory demo store (zero setup) and Supabase.
-- **Classifier:** `lib/classify.ts` calls Anthropic's Messages API with the Claude model id in `AI_MODEL`. With no key it uses a keyword mock so the app still runs end to end.
+- **Classifier:** `lib/classify.ts` sends the photo and note to Gemma 4 through Google's Gemini API using `GEMINI_API_KEY` and `GEMINI_MODEL`. With no Gemini key it retains legacy Claude support if configured; otherwise it uses the keyword demo classifier.
 
 ## Run it locally
 
@@ -61,13 +61,13 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-The app requires a Supabase project for authentication and resident profiles. Copy `.env.example` to `.env.local` and set the Supabase values before signing in. `ANTHROPIC_API_KEY` is optional for local setup; without it, the classifier uses the clearly labeled keyword demo mode.
+The app requires a Supabase project for authentication and resident profiles. Copy `.env.example` to `.env.local` and set the Supabase values before signing in. `GEMINI_API_KEY` is optional for local setup; without it (and without legacy Claude credentials), the classifier uses the clearly labeled keyword demo mode.
 
-### Turn on the real model
+### Turn on Gemma 4 photo analysis
 
-1. Create an API key in the [Anthropic Console](https://console.anthropic.com/settings/keys). API usage may require billing to be enabled.
-2. Copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY` and `AI_MODEL` (use a Claude model ID available to your Anthropic account).
-3. Claude models that support vision analyze the submitted image along with the tenant's note. Keep the API key server-side and never expose it in client code or commit it.
+1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
+2. Set `GEMINI_API_KEY` and `GEMINI_MODEL=gemma-4-26b-a4b-it` in `.env.local` and Vercel. The model setting defaults to this Gemma 4 model if omitted.
+3. The server sends the submitted photo and note to Gemma 4 and validates its JSON response before using it. Keep the key server-side and never expose it in client code or commit it.
 
 ### Turn on persistence (Supabase, free tier)
 

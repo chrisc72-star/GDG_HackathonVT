@@ -1,7 +1,7 @@
 /**
  * Team: Chris and Shruti
  * GDG Hackathon 2026
- * This module sends report photos and notes to the configured Claude model or uses a clearly labeled keyword fallback. It parses structured output and returns category, severity, confidence, and model metadata.
+ * This module sends report photos and notes to Gemma 4 through Google's Gemini API, with a legacy Claude integration and a clearly labeled keyword fallback. It parses structured output and returns category, severity, confidence, and model metadata.
  */
 
 import { z } from "zod";
@@ -22,7 +22,7 @@ export interface ClassifyInput {
 
 export interface ClassifyResult {
   classification: Classification;
-  provider: "anthropic" | "mock" | "fallback";
+  provider: "google" | "anthropic" | "mock" | "fallback";
   model: string;
   usage?: { promptTokens: number; outputTokens: number };
   error?: string;
@@ -72,7 +72,61 @@ export function buildPrompt(description: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Claude via Anthropic's Messages API.
+// Gemma 4 via Google's Gemini generateContent API.
+// ---------------------------------------------------------------------------
+const DEFAULT_GEMMA_MODEL = "gemma-4-26b-a4b-it";
+
+async function classifyWithGemma(
+  input: ClassifyInput,
+  apiKey: string,
+  model: string,
+): Promise<ClassifyResult> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25_000);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: buildPrompt(input.description) },
+            { inline_data: { mime_type: input.mimeType, data: input.imageBase64 } },
+          ],
+        }],
+        generationConfig: { maxOutputTokens: 400 },
+      }),
+    });
+    if (!res.ok) throw new Error(`Gemini API returned ${res.status}`);
+    const data = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+      usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+    };
+    const text = (data.candidates?.[0]?.content?.parts ?? [])
+      .map((part) => part.text ?? "")
+      .join("");
+    const classification = parseModelJson(text);
+    return {
+      classification,
+      provider: "google",
+      model,
+      usage: {
+        promptTokens: data.usageMetadata?.promptTokenCount ?? 0,
+        outputTokens: data.usageMetadata?.candidatesTokenCount ?? 0,
+      },
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Legacy Claude support for deployments that have not added a Gemini key yet.
 // ---------------------------------------------------------------------------
 async function classifyWithClaude(
   input: ClassifyInput,
@@ -201,6 +255,27 @@ export function classifyMock(description: string): ClassifyResult {
 // still gets a form they can fill in manually.
 // ---------------------------------------------------------------------------
 export async function classifyReport(input: ClassifyInput): Promise<ClassifyResult> {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (geminiApiKey) {
+    const model = process.env.GEMINI_MODEL || DEFAULT_GEMMA_MODEL;
+    try {
+      return await classifyWithGemma(input, geminiApiKey, model);
+    } catch (err) {
+      return {
+        provider: "fallback",
+        model,
+        error: err instanceof Error ? err.message : "Unknown error",
+        classification: {
+          category: "other",
+          severity: "standard",
+          confidence: 0,
+          visibleEvidence: "Automatic analysis was unavailable. Please choose the category yourself.",
+        },
+      };
+    }
+  }
+
+  // Keep existing Claude deployments working until they switch to Gemini.
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const model = process.env.AI_MODEL;
 

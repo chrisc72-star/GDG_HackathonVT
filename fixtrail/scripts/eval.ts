@@ -8,7 +8,7 @@
  * Accuracy evaluation for the photo classifier.
  *
  *   1. Put labeled photos in eval/images/ and list them in eval/labels.csv
- *   2. Set ANTHROPIC_API_KEY and AI_MODEL in .env.local
+ *   2. Set GEMINI_API_KEY (and optionally GEMINI_MODEL) in .env.local
  *   3. npm run eval
  *
  * Writes eval/RESULTS.md. Put the headline numbers in your README.
@@ -49,11 +49,12 @@ async function main() {
   const root = path.resolve(__dirname, "..");
   loadEnvFile(path.join(root, ".env.local"));
 
-  if (!process.env.ANTHROPIC_API_KEY || !process.env.AI_MODEL) {
+  const hasModel = !!process.env.GEMINI_API_KEY || (!!process.env.ANTHROPIC_API_KEY && !!process.env.AI_MODEL);
+  if (!hasModel) {
     if (process.env.EVAL_ALLOW_MOCK !== "1") {
       console.error(
         "No model configured. The mock classifier ignores photos, so its accuracy is meaningless.\n" +
-          "Set ANTHROPIC_API_KEY and AI_MODEL in .env.local (or set EVAL_ALLOW_MOCK=1 to test this script itself).",
+          "Set GEMINI_API_KEY in .env.local (or legacy ANTHROPIC_API_KEY and AI_MODEL), or set EVAL_ALLOW_MOCK=1 to test this script itself.",
       );
       process.exit(1);
     }
@@ -116,10 +117,13 @@ async function main() {
   }
 
   const pct = (n: number, d: number) => (d === 0 ? "n/a" : `${((100 * n) / d).toFixed(1)}%`);
+  const modelName = process.env.GEMINI_API_KEY
+    ? process.env.GEMINI_MODEL || "gemma-4-26b-a4b-it"
+    : process.env.AI_MODEL || "mock";
   const lines = [
     "# Classifier evaluation",
     "",
-    `Model: \`${process.env.AI_MODEL ?? "mock"}\`. Photos evaluated: ${total}.`,
+    `Model: \`${modelName}\`. Photos evaluated: ${total}.`,
     "",
     "| Metric | Result |",
     "| --- | --- |",
