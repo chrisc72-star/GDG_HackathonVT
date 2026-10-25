@@ -102,7 +102,11 @@ async function classifyWithGemma(
         generationConfig: { maxOutputTokens: 400 },
       }),
     });
-    if (!res.ok) throw new Error(`Gemini API returned ${res.status}`);
+    if (!res.ok) {
+      const responseError = await res.json().catch(() => null) as { error?: { message?: string } } | null;
+      const detail = responseError?.error?.message?.slice(0, 300);
+      throw new Error(`Gemini API returned ${res.status}${detail ? `: ${detail}` : ""}`);
+    }
     const data = (await res.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
       usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
@@ -261,6 +265,10 @@ export async function classifyReport(input: ClassifyInput): Promise<ClassifyResu
     try {
       return await classifyWithGemma(input, geminiApiKey, model);
     } catch (err) {
+      console.error("Gemma photo analysis failed", {
+        model,
+        error: err instanceof Error ? err.message : "Unknown error",
+      });
       return {
         provider: "fallback",
         model,
