@@ -58,7 +58,8 @@ export function buildPrompt(description: string): string {
   const note = sanitizeText(description, 500).replace(/[<>]/g, "");
   return [
     "You are a housing-maintenance triage assistant. Look at the photo and the tenant's note.",
-    "Return ONLY a JSON object with exactly these keys: category, severity, confidence, visible_evidence.",
+    "Return exactly one valid JSON object with these keys: category, severity, confidence, visible_evidence.",
+    "Do not include reasoning, markdown, code fences, or any text before or after the JSON object. Use double quotes for every key and string value.",
     `category: one of ${CLASSIFIER_CATEGORIES.join(", ")}.`,
     "severity: one of minor, standard, urgent, emergency (emergency = immediate danger to health or safety).",
     "confidence: a number from 0 to 1. Use a low number if the photo is blurry, dark, or unclear.",
@@ -95,11 +96,14 @@ async function classifyWithGemma(
       body: JSON.stringify({
         contents: [{
           parts: [
-            { text: buildPrompt(input.description) },
             { inline_data: { mime_type: input.mimeType, data: input.imageBase64 } },
+            { text: buildPrompt(input.description) },
           ],
         }],
-        generationConfig: { maxOutputTokens: 400 },
+        generationConfig: {
+          maxOutputTokens: 512,
+          thinkingConfig: { thinkingLevel: "minimal" },
+        },
       }),
     });
     if (!res.ok) {
