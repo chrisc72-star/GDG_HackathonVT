@@ -40,7 +40,7 @@ Browser (Next.js, mobile-first, keyboard accessible)
   ▼
 Next.js route handlers (server)
   ├─ Supabase Auth ──► verified @vt.edu resident profile ──► one selected residence hall
-  ├─ POST /api/classify ──► per-device limit (2 per 5 minutes) ──► Gemma 4 ──► JSON
+  ├─ POST /api/classify ──► per-device limit (2 per minute) ──► Gemma 4 ──► JSON
   │        └─ zod schema ─► safety rules (floors, confidence, not_housing)
   ├─ POST /api/reports ───► Store ──► Supabase Postgres + private Storage bucket
   ├─ GET/PATCH/DELETE /api/reports/[id]   (owner only)

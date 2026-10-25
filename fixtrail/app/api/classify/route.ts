@@ -30,12 +30,12 @@ export async function POST(req: Request) {
   const deviceHash = reporterHashFrom(req) ?? hashToken(`ip:${clientIp(req)}`);
   let allowed: boolean;
   try {
-    allowed = await consumeRateLimit(`analyze:${deviceHash}`, 2, 5 * 60_000);
+    allowed = await consumeRateLimit(`analyze:${deviceHash}`, 2, 60_000);
   } catch {
     return json({ error: "Photo analysis is temporarily unavailable. Please try again shortly." }, 503);
   }
   if (!allowed) {
-    return json({ error: "Analysis limit reached. This device can analyze 2 photos every 5 minutes." }, 429);
+    return json({ error: "Analysis limit reached. This device can analyze 2 photos every minute." }, 429);
   }
 
   const description = sanitizeText(String(form.get("description") ?? ""), 500);
