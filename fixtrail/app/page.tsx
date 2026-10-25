@@ -9,7 +9,7 @@ export default function HomePage() {
       <RuntimeBanner />
 
       <section className="hero" aria-labelledby="hero-title">
-        <h1 id="hero-title">When the landlord says &ldquo;we never heard about it,&rdquo; you have a record.</h1>
+        <h1 id="hero-title">Your report creates a record you can refer back to.</h1>
         <p className="lead">
           FixTrail turns a photo of a housing problem into a dated, categorized report, starts a response
           clock, and shows patterns across a building so one tenant&rsquo;s complaint is no longer just one
