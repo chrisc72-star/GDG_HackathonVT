@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This component summarizes the current device’s reports for one building. It calculates status and category totals and links to the filtered report-management page.
+ */
+
 "use client";
 
 import Link from "next/link";

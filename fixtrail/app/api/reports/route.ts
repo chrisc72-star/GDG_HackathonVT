@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route lists reports visible to the current user and accepts new repair reports. It validates report fields, photo consent, access, and rate limits before storing data.
+ */
+
 import { randomUUID } from "node:crypto";
 import { computeDueAt } from "@/lib/deadlines";
 import { clientIp, hashToken, json, validatePhoto } from "@/lib/http";

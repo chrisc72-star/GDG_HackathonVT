@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This root layout defines site metadata and wraps every page with the shared header, navigation, main landmark, and footer. It also determines whether the administrator link is visible for the current user.
+ */
+
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";

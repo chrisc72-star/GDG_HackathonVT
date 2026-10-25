@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page contains the single-page repair-report form, including resident and building details, photo analysis, and editable issue classification. It guides the user through confirming and saving a report.
+ */
+
 "use client";
 
 import Link from "next/link";

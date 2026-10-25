@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module converts stored reports into public, resident, and administrative response shapes. It controls which identity and status fields are exposed in each view.
+ */
+
 import { deadlineInfo, type DeadlineInfo } from "./deadlines";
 import type { Report } from "./types";
 

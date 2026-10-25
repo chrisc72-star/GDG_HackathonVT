@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This middleware protects resident and administrator routes and keeps unverified accounts inside the sign-in and onboarding flow. It also applies basic response security headers.
+ */
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 

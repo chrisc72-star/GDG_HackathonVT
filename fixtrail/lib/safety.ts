@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module applies deterministic safety rules to model classifications and user text. It enforces minimum severity for high-risk categories, confidence handling, and sanitization.
+ */
+
 import {
   SEVERITY_RANK,
   type Category,

@@ -1,3 +1,9 @@
+<!--
+  Team: Chris and Shruti
+  GDG Hackathon 2026
+  This document provides a timed walkthrough for presenting FixTrail. It lists the demonstration steps, talking points, and expected user-facing outcomes.
+-->
+
 # 2-minute demo script
 
 **Before you start:** run in the mode you plan to claim. For the real demo, set the model key so the photo is actually analyzed. Open `/buildings/<Maple Ridge>` in one tab and `/report` on your phone or a second tab. Have one real photo of a believable problem ready (a stained ceiling, a leaky sink, a cracked wall). Do a full dry run at least two hours before the deadline.

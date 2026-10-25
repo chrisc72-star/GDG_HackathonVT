@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module creates the request-scoped Supabase server client using authentication cookies. It supports secure server-side session and profile checks.
+ */
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 

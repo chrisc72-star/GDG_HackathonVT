@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page presents one building’s public report information and the current device’s private report analysis. It loads building details, shows privacy thresholds, and links residents to report and management actions.
+ */
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RuntimeBanner } from "@/components/RuntimeBanner";

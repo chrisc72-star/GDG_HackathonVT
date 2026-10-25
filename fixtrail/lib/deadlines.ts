@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module calculates response deadlines and user-facing deadline states from a report date and severity. It also formats elapsed and remaining durations.
+ */
+
 import { JURISDICTION } from "./jurisdiction";
 import type { Severity } from "./types";
 

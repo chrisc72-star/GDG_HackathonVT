@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module records the application’s jurisdiction and related legal-context metadata. It gives report-notice generation a single source for location-specific wording.
+ */
+
 import type { Severity } from "./types";
 
 /**

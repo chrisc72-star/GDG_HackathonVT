@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks deterministic safety rules for issue classifications. It covers severity floors, confidence thresholds, and text sanitization.
+ */
+
 import { describe, expect, it } from "vitest";
 import { parseModelJson } from "@/lib/classify";
 import { applySafetyRules, enforceSeverityFloor, sanitizeText } from "@/lib/safety";

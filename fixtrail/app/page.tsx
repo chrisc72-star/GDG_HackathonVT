@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This is the FixTrail landing page and introduction to the product. It explains the housing-report workflow and provides the main navigation actions for residents.
+ */
+
 import Link from "next/link";
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 

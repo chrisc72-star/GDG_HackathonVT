@@ -1,3 +1,7 @@
+-- Team: Chris and Shruti
+-- GDG Hackathon 2026
+-- This migration restores the one-hall limit for ordinary resident accounts and removes extra memberships from profiles. It reinstates the corresponding uniqueness rule and membership trigger.
+
 -- Residents may access only the hall selected on their profile.
 -- Remove extra hall memberships created by the previous multi-hall feature.
 delete from public.resident_buildings rb

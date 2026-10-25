@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route lets authorized administrators update or delete one report. It validates admin access and applies status changes through the shared report store.
+ */
+
 import { getCurrentUser, isAdminEmail, isVerifiedVtUser } from "@/lib/auth";
 import { json } from "@/lib/http";
 import { toReportView } from "@/lib/serialize";

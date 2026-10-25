@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route lets the report owner update or delete an individual report. It verifies ownership and validates requested status and report changes before using the store.
+ */
+
 import { hashToken, json } from "@/lib/http";
 import { getCurrentResident } from "@/lib/auth";
 import { toReportView } from "@/lib/serialize";

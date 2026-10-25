@@ -1,4 +1,10 @@
 /**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This script inserts clearly labeled demo buildings and sample reports into Supabase for demonstrations. It reads local environment settings and uses server-side database access.
+ */
+
+/**
  * Load the fictional demo buildings and reports into Supabase so the building
  * dashboard has something to show.
  *

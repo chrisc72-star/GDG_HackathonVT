@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module defines the report and building storage interface and its in-memory implementation. It selects Supabase when configured and provides shared operations for the application.
+ */
+
 import { randomUUID } from "node:crypto";
 import { DEMO_BUILDINGS, VT_CAMPUS_BUILDINGS, buildSeedReports } from "./seed";
 import { createSupabaseStore } from "./supabaseStore";

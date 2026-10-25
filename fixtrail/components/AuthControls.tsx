@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This component shows the current sign-in state in the site navigation. It displays the signed-in email and sign-out control or a link to sign in.
+ */
+
 "use client";
 
 import Link from "next/link";

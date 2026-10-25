@@ -1,3 +1,7 @@
+-- Team: Chris and Shruti
+-- GDG Hackathon 2026
+-- This file defines the complete Supabase schema for a fresh FixTrail installation. It creates buildings, reports, resident profiles, hall memberships, storage policies, and shared rate-limit support.
+
 -- FixTrail schema. Run once in the Supabase SQL editor.
 -- All access goes through the Next.js server using the service-role key.
 -- RLS is enabled with NO public policies, so the anon key can read nothing.

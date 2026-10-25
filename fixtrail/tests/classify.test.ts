@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks classifier prompt construction, model-output parsing, and fallback behavior. It also verifies malformed or unsafe model responses are handled safely.
+ */
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildPrompt, classifyMock, classifyReport } from "@/lib/classify";
 

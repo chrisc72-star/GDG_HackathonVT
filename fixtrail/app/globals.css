@@ -1,3 +1,9 @@
+/*
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This stylesheet defines FixTrail’s shared colors, typography, layout, navigation, forms, notices, cards, and responsive behavior. It provides the common visual system used throughout the app.
+ */
+
 :root {
   --paper: #f7f4ee;
   --card: #ffffff;

@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module defines shared building, report, classification, status, and severity types. It also contains the category and severity labels used across the app.
+ */
+
 export const CATEGORIES = [
   "mold",
   "water_leak",

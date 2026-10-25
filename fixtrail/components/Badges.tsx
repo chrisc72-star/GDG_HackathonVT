@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This file defines reusable badges for deadlines, severity, and report status. It maps report values to consistent labels and visual states.
+ */
+
 import type { DeadlineInfo } from "@/lib/deadlines";
 import { SEVERITY_LABELS, type ReportStatus, type Severity } from "@/lib/types";
 

@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module implements the shared store interface with Supabase tables and private photo storage. It maps database rows to application types and handles report and building persistence.
+ */
+
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import type { Store } from "./store";

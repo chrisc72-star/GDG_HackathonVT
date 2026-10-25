@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page lists reports belonging to the current device or resident and supports report management. It sorts issues by severity and shows due dates, notices, and status actions.
+ */
+
 "use client";
 
 import Link from "next/link";

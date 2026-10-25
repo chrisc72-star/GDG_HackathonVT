@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route analyzes an uploaded housing-issue photo and optional note without saving the submission. It validates the input, applies rate limits and safety rules, and returns the suggested classification.
+ */
+
 import { classifyReport } from "@/lib/classify";
 import { clientIp, hashToken, json, reporterHashFrom, validatePhoto } from "@/lib/http";
 import { consumeRateLimit } from "@/lib/rateLimit";

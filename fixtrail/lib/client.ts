@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module contains browser-side helpers for reporter identity, image compression, and API requests. It keeps uploaded photos smaller and attaches the appropriate device token to report operations.
+ */
+
 /** Browser-only helpers. Import these from client components only. */
 
 const TOKEN_KEY = "fixtrail.reporterToken";

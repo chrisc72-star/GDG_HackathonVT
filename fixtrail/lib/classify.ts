@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module sends report photos and notes to the configured Claude model or uses a clearly labeled keyword fallback. It parses structured output and returns category, severity, confidence, and model metadata.
+ */
+
 import { z } from "zod";
 import { sanitizeText } from "./safety";
 import {

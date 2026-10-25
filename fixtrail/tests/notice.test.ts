@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks generated repair-notice PDF content and encoding behavior. It covers long or unusual text and invalid photo input.
+ */
+
 import { describe, expect, it } from "vitest";
 import { generateNoticePdf, toWinAnsi } from "@/lib/notice";
 import { DEMO_BUILDINGS, buildSeedReports } from "@/lib/seed";
