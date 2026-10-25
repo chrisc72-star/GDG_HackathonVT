@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module reads and validates Supabase users and resident profiles. It centralizes Virginia Tech email verification, administrator checks, and access to each resident’s permitted halls.
+ */
+
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";

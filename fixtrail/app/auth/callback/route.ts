@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This route completes the Supabase authentication callback and redirects the user after sign-in. It validates the requested destination to prevent unsafe external redirects.
+ */
+
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 

@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page presents the Virginia Tech sign-in flow and explains account verification. It starts Google authentication through Supabase and reports sign-in errors to the user.
+ */
+
 "use client";
 
 import Link from "next/link";

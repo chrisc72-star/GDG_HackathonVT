@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page lists the residence halls available to the signed-in resident or administrator. It loads account access and passes allowed halls to the building-list interface.
+ */
+
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 import { getStore } from "@/lib/store";
 import { getCurrentResident, isAdminEmail } from "@/lib/auth";

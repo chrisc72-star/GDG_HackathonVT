@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route returns reports across buildings to authorized administrators. It includes the building labels needed by the admin dashboard while keeping the endpoint behind server-side access checks.
+ */
+
 import { getCurrentUser, isAdminEmail, isVerifiedVtUser } from "@/lib/auth";
 import { json } from "@/lib/http";
 import { toReportView } from "@/lib/serialize";

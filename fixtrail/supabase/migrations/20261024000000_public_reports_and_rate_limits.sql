@@ -1,3 +1,7 @@
+-- Team: Chris and Shruti
+-- GDG Hackathon 2026
+-- This migration adds public-report consent storage and a shared rolling-window rate-limit table and function. It restricts privileged database access to the service role.
+
 -- Shared rolling-window counters used by the photo-analysis endpoint.
 -- The API passes only a SHA-256 device/IP identifier, never a raw token or IP.
 alter table public.reports

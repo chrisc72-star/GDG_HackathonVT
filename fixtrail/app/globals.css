@@ -1,3 +1,9 @@
+/*
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This stylesheet defines FixTrail’s shared colors, typography, layout, navigation, forms, notices, cards, and responsive behavior. It provides the common visual system used throughout the app.
+ */
+
 :root {
   --paper: #f7f4ee;
   --card: #ffffff;
@@ -48,14 +54,24 @@ a { color: var(--primary); text-underline-offset: 3px; }
 
 .site-header {
   display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center;
-  justify-content: space-between; padding: 0.9rem 1.25rem;
+  justify-content: space-between; padding: 0.75rem max(1.25rem, calc((100vw - 1120px) / 2));
   background: var(--card); border-bottom: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgb(28 34 48 / 5%);
 }
-.brand { font-family: var(--serif); font-weight: 700; font-size: 1.3rem; color: var(--ink); text-decoration: none; }
+.brand { font-family: var(--serif); font-weight: 700; font-size: 1.45rem; color: var(--ink); text-decoration: none; letter-spacing: -0.03em; }
 .brand span { color: var(--primary); }
-nav ul { list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; flex-wrap: wrap; }
-nav a { color: var(--ink); font-weight: 600; }
+nav ul { list-style: none; display: flex; align-items: center; gap: 0.25rem; margin: 0; padding: 0; flex-wrap: wrap; }
+nav a { color: var(--ink); font-weight: 600; text-decoration: none; }
+.site-header nav > ul > li > a:not(.btn) { display: inline-flex; align-items: center; min-height: 42px; padding: 0.45rem 0.75rem; border-radius: 8px; transition: background-color 140ms ease, color 140ms ease; }
+.site-header nav > ul > li > a:not(.btn):hover { background: var(--primary-soft); color: var(--primary); }
 .auth-controls { display: inline-flex; align-items: center; gap: 0.5rem; }
+.auth-controls .meta { max-width: 15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 720px) {
+  .site-header { padding: 0.75rem 1rem; }
+  .site-header nav { width: 100%; }
+  .site-header nav ul { gap: 0.2rem; }
+  .site-header nav > ul > li > a:not(.btn) { padding-inline: 0.6rem; }
+}
 
 main { max-width: 960px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
 

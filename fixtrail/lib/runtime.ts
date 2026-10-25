@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module reports whether persistent storage and a real image-classification model are configured. It supplies the status shown by the runtime banner.
+ */
+
 export interface RuntimeInfo {
   /** A Claude model is configured for photo analysis. */
   aiMode: "model" | "mock";

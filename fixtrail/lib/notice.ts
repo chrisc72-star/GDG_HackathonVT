@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module builds a downloadable repair-notice PDF from report and building details. It handles text encoding, wrapping, and document layout for the generated notice.
+ */
+
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { JURISDICTION } from "./jurisdiction";
 import { CATEGORY_LABELS, SEVERITY_LABELS, type Building, type Report } from "./types";

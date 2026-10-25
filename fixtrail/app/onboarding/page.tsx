@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This page collects a verified resident’s name, room, and primary residence hall during account setup. It loads the official hall list and submits the profile to the onboarding API.
+ */
+
 "use client";
 
 import { useRouter } from "next/navigation";

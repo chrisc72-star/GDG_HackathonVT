@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route creates a downloadable repair-notice PDF for a report owned by the requesting device or resident. It loads the report, applies access checks, and returns the generated document.
+ */
+
 import { hashToken, json } from "@/lib/http";
 import { getCurrentResident } from "@/lib/auth";
 import { generateNoticePdf } from "@/lib/notice";

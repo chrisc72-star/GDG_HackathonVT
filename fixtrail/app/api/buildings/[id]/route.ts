@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route returns a building and its public aggregate summary. It checks the requested building and serializes only the data intended for that view.
+ */
+
 import { summarizeBuilding } from "@/lib/aggregate";
 import { json } from "@/lib/http";
 import { getStore } from "@/lib/store";

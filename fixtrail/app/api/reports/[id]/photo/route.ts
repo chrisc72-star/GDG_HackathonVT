@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route streams a report photo only to an authorized report owner, building resident, or administrator. It enforces visibility rules before returning the stored image.
+ */
+
 import { json } from "@/lib/http";
 import { getCurrentResident, getCurrentUser, isAdminEmail, isVerifiedVtUser } from "@/lib/auth";
 import { getStore } from "@/lib/store";

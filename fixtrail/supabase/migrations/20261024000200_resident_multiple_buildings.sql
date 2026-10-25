@@ -1,3 +1,7 @@
+-- Team: Chris and Shruti
+-- GDG Hackathon 2026
+-- This migration adds resident-to-building membership records for hall access. It creates the membership table, indexes, policies, and profile synchronization trigger.
+
 -- Let a resident add existing Virginia Tech residence halls to their account.
 -- The primary building_id on profiles remains the hall selected at onboarding.
 

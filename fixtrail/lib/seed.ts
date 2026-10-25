@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module defines the demo and Virginia Tech residence-hall catalogs and builds sample reports. It supplies clearly marked development data without mixing demo households into real submissions.
+ */
+
 import type { Building, Report } from "./types";
 
 /** Fictional demo buildings are never shown to Virginia Tech residents. */

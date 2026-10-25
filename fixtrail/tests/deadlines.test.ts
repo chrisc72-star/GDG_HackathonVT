@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks response-deadline calculations and deadline-state boundaries. It covers severity-specific timing and duration formatting.
+ */
+
 import { describe, expect, it } from "vitest";
 import { computeDueAt, deadlineInfo, formatDuration } from "@/lib/deadlines";
 import { JURISDICTION } from "@/lib/jurisdiction";

@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route lists available buildings and handles administrator requests to add an eligible hall to their account. It validates resident and admin access before changing building membership.
+ */
+
 import { json } from "@/lib/http";
 import { getStore } from "@/lib/store";
 import { getCurrentUser, getResidentProfile, isAdminEmail, isVerifiedVtUser } from "@/lib/auth";

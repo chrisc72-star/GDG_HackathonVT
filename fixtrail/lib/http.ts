@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module provides shared HTTP response, client-IP, reporter-token, and photo-validation helpers. It centralizes limits and input checks used by API routes.
+ */
+
 import { createHash } from "node:crypto";
 
 export function json(data: unknown, status = 200): Response {

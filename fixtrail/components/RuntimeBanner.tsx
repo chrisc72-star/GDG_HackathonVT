@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This component explains whether the app is using persistent Supabase storage and a configured AI model or local demo behavior. It helps users understand the active runtime limitations.
+ */
+
 import { getRuntimeInfo } from "@/lib/runtime";
 
 /** Honest status line: tells visitors when they are looking at demo behavior. */

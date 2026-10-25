@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module implements request rate limiting for local and shared deployments. It supports an in-memory fallback and the Supabase-backed rolling-window counter.
+ */
+
 import { createClient } from "@supabase/supabase-js";
 
 /**

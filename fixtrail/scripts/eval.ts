@@ -1,4 +1,10 @@
 /**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This script evaluates the configured photo classifier against labeled images. It reports classification accuracy and related results for the supplied evaluation dataset.
+ */
+
+/**
  * Accuracy evaluation for the photo classifier.
  *
  *   1. Put labeled photos in eval/images/ and list them in eval/labels.csv

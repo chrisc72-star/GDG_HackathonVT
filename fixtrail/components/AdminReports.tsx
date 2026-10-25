@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This component renders the administrator’s cross-building report dashboard. It provides report filtering, photo previews, and controls to acknowledge, resolve, reopen, or delete reports.
+ */
+
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";

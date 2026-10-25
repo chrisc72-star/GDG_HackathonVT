@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This API route provides the Virginia Tech residence-hall list and saves a verified resident’s onboarding profile. It validates identity and selected-hall data before persisting it.
+ */
+
 import { json } from "@/lib/http";
 import { getCurrentUser, getResidentProfile, isVerifiedVtUser } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";

@@ -1,3 +1,7 @@
+-- Team: Chris and Shruti
+-- GDG Hackathon 2026
+-- This migration adds Virginia Tech residence-hall metadata and resident profile support. It seeds the campus hall catalog and configures access policies and membership behavior.
+
 -- Virginia Tech residents sign in with a verified @vt.edu address and are
 -- assigned one on-campus residence building during onboarding.
 

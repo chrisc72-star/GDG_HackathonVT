@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This is the FixTrail landing page and introduction to the product. It explains the housing-report workflow and provides the main navigation actions for residents.
+ */
+
 import Link from "next/link";
 import { RuntimeBanner } from "@/components/RuntimeBanner";
 
@@ -9,7 +15,7 @@ export default function HomePage() {
       <RuntimeBanner />
 
       <section className="hero" aria-labelledby="hero-title">
-        <h1 id="hero-title">When the landlord says &ldquo;we never heard about it,&rdquo; you have a record.</h1>
+        <h1 id="hero-title">Your report creates a record you can refer back to.</h1>
         <p className="lead">
           FixTrail turns a photo of a housing problem into a dated, categorized report, starts a response
           clock, and shows patterns across a building so one tenant&rsquo;s complaint is no longer just one

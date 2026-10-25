@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks the in-memory report and building store. It covers report creation, ownership isolation, filtering, and updates.
+ */
+
 import { describe, expect, it } from "vitest";
 import { computeDueAt } from "@/lib/deadlines";
 import { hashToken, reporterHashFrom, validatePhoto } from "@/lib/http";

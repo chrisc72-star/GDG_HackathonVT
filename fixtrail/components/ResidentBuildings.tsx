@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This component displays halls available to the current resident or administrator. It also provides the admin-only form for adding another residence hall to an account.
+ */
+
 "use client";
 
 import Link from "next/link";

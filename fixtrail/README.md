@@ -1,3 +1,9 @@
+<!--
+  Team: Chris and Shruti
+  GDG Hackathon 2026
+  This document introduces FixTrail, explains its housing-report workflow and architecture, and records setup and deployment steps. It also describes the AI, privacy, evaluation, and responsible-use decisions.
+-->
+
 # FixTrail
 
 **Document repairs. Track deadlines. See patterns.**

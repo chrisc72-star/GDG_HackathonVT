@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module builds privacy-preserving building summaries from tenant reports. It applies household thresholds and computes category, severity, and response-time patterns.
+ */
+
 import { deadlineInfo } from "./deadlines";
 import type { Category, Report } from "./types";
 

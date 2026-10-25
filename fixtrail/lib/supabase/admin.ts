@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This module creates the server-only Supabase service-role client. It keeps privileged database access out of browser code.
+ */
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let adminClient: SupabaseClient<any> | null = null;

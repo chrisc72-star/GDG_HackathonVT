@@ -1,3 +1,7 @@
+# Team: Chris and Shruti
+# GDG Hackathon 2026
+# This file tells Git which local, generated, and machine-specific files to leave out of commits. It excludes build output, dependencies, secrets, and editor artifacts.
+
 node_modules
 .next
 out

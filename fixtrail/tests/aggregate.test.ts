@@ -1,3 +1,9 @@
+/**
+ * Team: Chris and Shruti
+ * GDG Hackathon 2026
+ * This test file checks privacy thresholds and building-summary calculations. It covers household counting, category patterns, and response-time aggregation.
+ */
+
 import { describe, expect, it } from "vitest";
 import { K_THRESHOLD, summarizeBuilding } from "@/lib/aggregate";
 import { DEMO_BUILDINGS, buildSeedReports } from "@/lib/seed";
